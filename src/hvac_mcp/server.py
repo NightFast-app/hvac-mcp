@@ -24,6 +24,7 @@ from hvac_mcp.tools import (
     code_lookup,
     diagnostics,
     invoice,
+    parts,
     refrigerant,
     sizing,
 )
@@ -51,7 +52,8 @@ def register_all_tools() -> None:
     diagnostics.register(mcp)
     code_lookup.register(mcp)
     sizing.register(mcp)
-    invoice.register(mcp)  # premium tools — license-gated at call time
+    parts.register(mcp)  # free-tier: capacitor cross-ref
+    invoice.register(mcp)  # premium: invoice_draft, quote_from_diagnosis
     logger.info("All tool modules registered")
 
 

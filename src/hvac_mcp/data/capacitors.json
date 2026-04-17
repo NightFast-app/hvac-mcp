@@ -1,0 +1,38 @@
+{
+  "_meta": {
+    "note": "Standard HVAC capacitor sizes commonly stocked by supply houses. Run/dual-run caps are metallized polypropylene; start caps are electrolytic and time-rated.",
+    "tolerance_pct": { "run": 6, "dual_run": 6, "start": 20 },
+    "voltage_rule": "Replacement voltage must be >= original. 440V is a drop-in for 370V; 370V is NOT a valid sub for 440V.",
+    "sources": [
+      "Genteq Run Capacitor Replacement Guide",
+      "Packard Capacitor Reference",
+      "Amrad Turbo200 cross-reference"
+    ]
+  },
+  "run_sizes_uf": [5, 7.5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 80, 90, 100],
+  "dual_run_sizes": [
+    { "label": "20/5",  "main": 20, "fan": 5 },
+    { "label": "25/5",  "main": 25, "fan": 5 },
+    { "label": "30/5",  "main": 30, "fan": 5 },
+    { "label": "35/5",  "main": 35, "fan": 5 },
+    { "label": "40/5",  "main": 40, "fan": 5 },
+    { "label": "45/5",  "main": 45, "fan": 5 },
+    { "label": "50/5",  "main": 50, "fan": 5 },
+    { "label": "55/5",  "main": 55, "fan": 5 },
+    { "label": "60/5",  "main": 60, "fan": 5 },
+    { "label": "65/5",  "main": 65, "fan": 5 },
+    { "label": "70/5",  "main": 70, "fan": 5 },
+    { "label": "80/5",  "main": 80, "fan": 5 },
+    { "label": "30/7.5","main": 30, "fan": 7.5 },
+    { "label": "40/7.5","main": 40, "fan": 7.5 },
+    { "label": "45/7.5","main": 45, "fan": 7.5 },
+    { "label": "50/7.5","main": 50, "fan": 7.5 },
+    { "label": "55/7.5","main": 55, "fan": 7.5 },
+    { "label": "60/7.5","main": 60, "fan": 7.5 }
+  ],
+  "start_ranges_uf": [
+    [88, 108], [108, 130], [145, 175], [189, 227], [216, 260],
+    [270, 324], [324, 389], [378, 454], [430, 516], [540, 648]
+  ],
+  "voltages": [370, 440]
+}

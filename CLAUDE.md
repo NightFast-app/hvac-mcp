@@ -118,7 +118,7 @@ hvac_mcp/
 
 Tools are `{service}_{action}` — always prefixed `hvac_` so they don't collide with other MCPs the user has loaded.
 
-### Free tier (open source) — 7 tools
+### Free tier (open source) — 8 tools
 
 - `hvac_refrigerant_pt_lookup` — R-410A, R-32, R-454B, R-22, R-134a with bubble+dew for zeotropic blends.
 - `hvac_refrigerant_charge_check` — TXV / piston diagnosis with restriction detection.
@@ -127,12 +127,13 @@ Tools are `{service}_{action}` — always prefixed `hvac_` so they don't collide
 - `hvac_code_lookup` — IRC / IMC / IPC + FL amendments (HVHZ, condensate, wind anchor). AHJ disclaimer hard-coded.
 - `hvac_pipe_size` — DWV (IPC Table 710.1) + supply (Hunter's). Rejects illegal material combos at input layer.
 - `hvac_duct_size` — ASHRAE friction chart + Huebscher round-to-rect. Velocity warnings.
+- `hvac_capacitor_crossref` — substitution verdict (ok / marginal / no_go) + suggestions from stocked sizes. Run / start / dual-run. ±6% run tolerance, ±20% start, voltage ≥ spec rule enforced.
 
-### Premium tier (license key required) — 1 live, 3 stubs
+### Premium tier (license key required) — 2 live, 2 stubs
 
-- `hvac_invoice_draft` ✅ wired end-to-end with `@premium` gate.
+- `hvac_invoice_draft` ✅ formatted invoice with parts + labor + tax.
+- `hvac_quote_from_diagnosis` ✅ customer-ready quote with FL defaults ($120/hr, 50% markup, 6.5% parts-only tax), minimum-charge floor, SMS-safe plain-text variant.
 - `hvac_estimate_from_symptom` — stub for v1.1.
-- `hvac_parts_crossref` — stub for v1.1.
 - `hvac_permit_lookup_fl` — stub for v1.1.
 
 ## Stack
