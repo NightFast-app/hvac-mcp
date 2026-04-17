@@ -1,0 +1,243 @@
+{
+  "_meta": {
+    "note": "Summarized model-code and Florida-amendment excerpts for quick field reference. NOT a substitute for the authoritative adopted code — always verify with AHJ before permit, install, or inspection.",
+    "editions": {
+      "IRC": "2021",
+      "IMC": "2021",
+      "IPC": "2021",
+      "FBC-Mechanical": "2020 (7th Edition, based on 2018 IMC with FL amendments)",
+      "FBC-Plumbing": "2020 (7th Edition)"
+    },
+    "sources": [
+      "International Code Council (ICC) — iccsafe.org",
+      "Florida Building Code — floridabuilding.org"
+    ],
+    "disclaimer": "Informational summary only. Code text is paraphrased. Verify against the authoritative adopted code and local amendments with your AHJ."
+  },
+  "entries": [
+    {
+      "id": "imc-304",
+      "code": "IMC",
+      "section": "304",
+      "edition": "2021",
+      "jurisdiction": "national",
+      "topic": "equipment installation clearances and access",
+      "keywords": ["clearance", "clearances", "access", "service", "working space", "install location"],
+      "summary": "Appliances shall be installed with manufacturer-specified clearances from combustibles and sufficient service access. Where listing and instructions differ from table values, the listing controls.",
+      "gotchas": [
+        "A 30\" wide × 30\" deep service clearance in front of the control side is common — confirm on the appliance nameplate.",
+        "Working space at electrical panels (NEC 110.26) applies when panel shares the equipment space — don't block with a furnace.",
+        "Attic installation requires permanent lighting and a receptacle at the appliance per IMC 306."
+      ],
+      "source": "2021 IMC §304 — General."
+    },
+    {
+      "id": "imc-306",
+      "code": "IMC",
+      "section": "306",
+      "edition": "2021",
+      "jurisdiction": "national",
+      "topic": "attic and under-floor appliance access",
+      "keywords": ["attic", "under floor", "crawl space", "passageway", "platform", "lighting", "receptacle"],
+      "summary": "Attic appliances require a 22\" × 30\" passageway (max 20 ft), a 30\" × 30\" service platform in front of the access side, permanent lighting at the appliance, and a 120V receptacle within 25 ft on the same side of the access.",
+      "gotchas": [
+        "Solid flooring from the attic access to the appliance is required where the passageway is over insulation.",
+        "Passageway max length can be reduced if walking is required on the framing only.",
+        "GFCI required for the attic receptacle (NEC 210.8)."
+      ],
+      "source": "2021 IMC §306."
+    },
+    {
+      "id": "imc-307",
+      "code": "IMC",
+      "section": "307",
+      "edition": "2021",
+      "jurisdiction": "national",
+      "topic": "condensate disposal and drain",
+      "keywords": ["condensate", "drain", "p-trap", "secondary", "safety pan", "float switch", "discharge"],
+      "summary": "Condensate from cooling coils shall be disposed of via a primary drain sized per coil capacity (¾\" nominal min for most residential). A secondary means (secondary pan w/ float switch, secondary drain line, or auxiliary float switch on primary line) is required for units installed above ceilings or in locations where overflow causes damage.",
+      "gotchas": [
+        "P-trap must match the blower static — negative static pulls air through a shallow trap.",
+        "Never tie condensate to a sanitary drain unless properly trapped and air-gapped.",
+        "Secondary drain must terminate to a conspicuous location so the owner notices the overflow."
+      ],
+      "source": "2021 IMC §307."
+    },
+    {
+      "id": "imc-401",
+      "code": "IMC",
+      "section": "401-403",
+      "edition": "2021",
+      "jurisdiction": "national",
+      "topic": "mechanical ventilation rates and outdoor air",
+      "keywords": ["ventilation", "outside air", "outdoor air", "ashrae 62.2", "fresh air", "iaq", "balanced"],
+      "summary": "Residential dwelling units require whole-house mechanical ventilation per ASHRAE 62.2 (as adopted). Rate ≈ 7.5 CFM per occupant + 3 CFM per 100 ft² of floor area. Commercial spaces use Table 403.3.1.1.",
+      "gotchas": [
+        "Exhaust-only works but depressurizes the home — risk for backdrafting atmospheric appliances.",
+        "Balanced ventilation (ERV/HRV) preferred in humid climates.",
+        "Don't count intermittent bath exhaust toward whole-house rate unless it runs on a schedule."
+      ],
+      "source": "2021 IMC §401-403 and ASHRAE 62.2."
+    },
+    {
+      "id": "imc-501",
+      "code": "IMC",
+      "section": "501",
+      "edition": "2021",
+      "jurisdiction": "national",
+      "topic": "exhaust systems general, dryer duct, kitchen hood",
+      "keywords": ["exhaust", "dryer duct", "kitchen hood", "range hood", "makeup air", "bath fan"],
+      "summary": "Exhaust systems shall discharge to the outside with a backdraft damper and minimum clearances from openings. Kitchen hoods > 400 CFM require makeup air (IMC 501.4.1). Dryer exhaust: rigid metal, max 35 ft equivalent length (reduce per elbows per IRC M1502).",
+      "gotchas": [
+        "Flex transition duct allowed only between rigid duct and the dryer — UL 2158A rated.",
+        "Range-hood termination cannot recirculate into the attic or soffit.",
+        "Bath fan must terminate outside, not into an attic or between joists."
+      ],
+      "source": "2021 IMC §501 and IRC §M1502."
+    },
+    {
+      "id": "imc-602-603",
+      "code": "IMC",
+      "section": "602-603",
+      "edition": "2021",
+      "jurisdiction": "national",
+      "topic": "plenums, return air, duct construction, insulation",
+      "keywords": ["plenum", "return air", "duct", "insulation", "r-value", "support", "flex duct"],
+      "summary": "Plenums shall not contain storage or combustibles. Ducts outside conditioned space require R-8 minimum (climate zones 2-8) or R-6 for supply/return in conditioned space per IECC. Flex duct supports: every 4 ft max, max sag ½\" per foot.",
+      "gotchas": [
+        "Fuel-gas lines inside plenums must be welded/brazed (no flex connectors).",
+        "Return air cannot be taken from garages, under-floor crawl spaces, or mechanical rooms containing fuel appliances.",
+        "Duct leakage testing required at rough and final in most adopted IECC editions."
+      ],
+      "source": "2021 IMC §602-603 and IECC §R403."
+    },
+    {
+      "id": "irc-m1411",
+      "code": "IRC",
+      "section": "M1411",
+      "edition": "2021",
+      "jurisdiction": "national",
+      "topic": "refrigerant piping, line set burial, brazing, leak test",
+      "keywords": ["line set", "refrigerant piping", "brazing", "burial", "nitrogen purge", "pressure test", "leak"],
+      "summary": "Refrigerant piping shall be brazed with dry nitrogen purge. Line sets below grade must be protected from corrosion and physical damage (conduit/sleeve). Post-brazing: pressure test + evacuate to 500 microns before charging.",
+      "gotchas": [
+        "No-nitrogen brazing is the #1 cause of TXV/compressor contamination.",
+        "Evacuation stays below 500µ for 10 min with vac pump valved off — rising indicates moisture or leak.",
+        "A2L refrigerants (R-32, R-454B) require compliant fittings and worker training per IMC 1106."
+      ],
+      "source": "2021 IRC §M1411 and IMC §1106 (A2L)."
+    },
+    {
+      "id": "irc-m1502",
+      "code": "IRC",
+      "section": "M1502",
+      "edition": "2021",
+      "jurisdiction": "national",
+      "topic": "clothes dryer exhaust",
+      "keywords": ["dryer", "dryer exhaust", "dryer duct", "lint", "booster fan"],
+      "summary": "Dryer exhaust duct: 4\" nominal, rigid metal, smooth interior, max equivalent length 35 ft. Deduct for each 90° elbow (typ 5 ft) and 45° (typ 2.5 ft). Manufacturer may allow longer with booster fan.",
+      "gotchas": [
+        "Plastic or vinyl duct is NEVER allowed.",
+        "Screws protruding into the duct catch lint — use foil tape or crimp joints with the male end pointing downstream.",
+        "Termination backdraft damper and no bird screen smaller than ¼\"."
+      ],
+      "source": "2021 IRC §M1502."
+    },
+    {
+      "id": "ipc-604",
+      "code": "IPC",
+      "section": "604",
+      "edition": "2021",
+      "jurisdiction": "national",
+      "topic": "water supply pipe sizing, fixture units",
+      "keywords": ["water supply", "pipe size", "supply sizing", "wsfu", "water service", "hunter"],
+      "summary": "Water supply pipe sized per WSFU (water supply fixture units). Table 604.3 lists WSFU per fixture type. Pipe size selected from flow/pressure/length via Tables 604.10.1 and Hunter's curve.",
+      "gotchas": [
+        "Tankless water heaters have a dedicated flow rate requirement — check manufacturer sizing chart, not just WSFU.",
+        "PEX effective ID is smaller than copper of same nominal size — use PEX-specific sizing tables.",
+        "Max flow velocity typically 8 fps hot, 10 fps cold (higher erodes pipe)."
+      ],
+      "source": "2021 IPC §604."
+    },
+    {
+      "id": "ipc-709",
+      "code": "IPC",
+      "section": "709",
+      "edition": "2021",
+      "jurisdiction": "national",
+      "topic": "DWV fixture units and drain sizing",
+      "keywords": ["dwv", "drain", "waste", "fixture units", "dfu", "branch drain", "building drain"],
+      "summary": "Drainage fixture units (DFU) assigned per Table 709.1 (water closet=4, lavatory=1, tub=2, kitchen sink=2, shower=2, etc.). Pipe sizes selected from Table 710.1 by DFU load and slope.",
+      "gotchas": [
+        "Minimum slope: ⅛\"/ft for 3\" and larger; ¼\"/ft for 2\" and smaller.",
+        "Water closet drain minimum 3\" for a single WC; 4\" if serving more than 6 WCs on same branch.",
+        "Cleanouts at every change of direction > 45°, max 100 ft apart on horizontal runs ≥ 4\"."
+      ],
+      "source": "2021 IPC §709-710."
+    },
+    {
+      "id": "ipc-906",
+      "code": "IPC",
+      "section": "906",
+      "edition": "2021",
+      "jurisdiction": "national",
+      "topic": "DWV vent sizing and termination",
+      "keywords": ["vent", "dwv vent", "vent stack", "vent termination", "air admittance valve", "aav"],
+      "summary": "Vent pipe sized ≥ ½ drain pipe size (but not less than 1¼\"). Stack vent / vent stack terminates min 6\" above roof, min 10 ft horizontally from any window/door or 3 ft above.",
+      "gotchas": [
+        "AAVs permitted for island sinks and remote fixtures only where local AHJ accepts — not universally allowed.",
+        "Vent termination below adjacent window opening is an auto-fail on inspection.",
+        "Frost closure: cold climates require 3\" vent through roof to resist icing."
+      ],
+      "source": "2021 IPC §906."
+    },
+    {
+      "id": "fbc-m-hvhz",
+      "code": "FBC-Mechanical",
+      "section": "301.15 (HVHZ)",
+      "edition": "2020",
+      "jurisdiction": "FL",
+      "topic": "high-velocity hurricane zone equipment installation",
+      "keywords": ["hvhz", "hurricane", "miami-dade", "broward", "product approval", "noa", "wind"],
+      "summary": "In Miami-Dade and Broward counties (HVHZ), all mechanical products exposed to wind uplift require Miami-Dade Notice of Acceptance (NOA) or FL Product Approval. Outdoor units must be anchored to resist design wind per FBC (140+ mph).",
+      "gotchas": [
+        "Line-set penetrations through exterior walls require NOA-approved flashing/sealants.",
+        "Condenser tie-down straps/anchors must be part of the approved assembly — not aftermarket.",
+        "Verify product NOA number on the ASCE 7 wind-load calc submitted with permit."
+      ],
+      "source": "2020 FBC-Mechanical §301.15 and Miami-Dade/Broward local ordinances."
+    },
+    {
+      "id": "fbc-m-outdoor-anchor",
+      "code": "FBC-Mechanical",
+      "section": "301 / 312 (FL amendment)",
+      "edition": "2020",
+      "jurisdiction": "FL",
+      "topic": "outdoor unit anchoring and wind loading",
+      "keywords": ["anchor", "tie down", "pad", "condenser", "wind load", "hurricane strap"],
+      "summary": "Outdoor condensing units in Florida must be anchored to a concrete pad or approved composite pad with straps rated for the design wind speed (typ 140 mph outside HVHZ, 175+ mph in HVHZ).",
+      "gotchas": [
+        "4\" concrete pad with #3 rebar grid is common; verify engineering per local AHJ.",
+        "Raised platforms in flood zones must be above BFE (Base Flood Elevation).",
+        "Strap bolts into composite pads require manufacturer-specified embedment depth."
+      ],
+      "source": "2020 FBC-Mechanical and ASCE 7 wind load provisions."
+    },
+    {
+      "id": "fbc-p-condensate",
+      "code": "FBC-Plumbing",
+      "section": "301.6 (FL amendment)",
+      "edition": "2020",
+      "jurisdiction": "FL",
+      "topic": "condensate drain discharge and routing in Florida",
+      "keywords": ["condensate", "discharge", "graywater", "storm drain", "direct bury", "primary drain"],
+      "summary": "Condensate may discharge to a properly sized exterior location (splash block, yard, dry well) or to an indirect waste. Florida-specific: never to a sanitary sewer without approved air gap; never into swimming pool return.",
+      "gotchas": [
+        "Long horizontal condensate runs in unconditioned attics must be insulated to prevent sweating.",
+        "In HVHZ, condensate termination point must be secured against hurricane disturbance.",
+        "Biofilm/algae clogs are the #1 service call in FL summers — add in-line algae tablets and cleanout access."
+      ],
+      "source": "2020 FBC-Plumbing §301.6 (FL amendment to IPC)."
+    }
+  ]
+}

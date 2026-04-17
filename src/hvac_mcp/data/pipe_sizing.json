@@ -1,0 +1,35 @@
+{
+  "_meta": {
+    "note": "DWV and water-supply pipe sizing thresholds for quick field reference. DWV ladder from IPC Table 710.1 (horizontal branch, standard slope). Supply ladder is a simplified Hunter's-curve derived lookup — NOT a replacement for a full pressure-loss calc on long runs.",
+    "sources": [
+      "2021 IPC Table 710.1 — Building Drains and Sewers",
+      "2021 IPC §604 and Hunter's curve (ASPE Data Book)",
+      "ACCA / PHCC installer handbooks"
+    ],
+    "disclaimer": "Informational. Developed length, slope, velocity, pressure loss, and vent sizing not evaluated. Verify with AHJ."
+  },
+  "dwv_horizontal_branch": [
+    {"nominal": "1-1/4\"", "max_dfu": 1},
+    {"nominal": "1-1/2\"", "max_dfu": 3},
+    {"nominal": "2\"", "max_dfu": 6},
+    {"nominal": "3\"", "max_dfu": 20},
+    {"nominal": "4\"", "max_dfu": 160},
+    {"nominal": "6\"", "max_dfu": 620}
+  ],
+  "supply_by_wsfu_copper": [
+    {"nominal": "1/2\"", "max_wsfu": 4},
+    {"nominal": "3/4\"", "max_wsfu": 10},
+    {"nominal": "1\"", "max_wsfu": 20},
+    {"nominal": "1-1/4\"", "max_wsfu": 50},
+    {"nominal": "1-1/2\"", "max_wsfu": 100},
+    {"nominal": "2\"", "max_wsfu": 200}
+  ],
+  "pex_size_bump": {
+    "1/2\"": "5/8\"",
+    "3/4\"": "1\"",
+    "1\"": "1-1/4\"",
+    "1-1/4\"": "1-1/2\"",
+    "1-1/2\"": "2\"",
+    "2\"": "2-1/2\""
+  }
+}

@@ -1,0 +1,47 @@
+# Release workflow.
+# Triggered by pushing a tag matching v* (e.g. v0.1.0).
+# Only uses `secrets.*` — no interpolation of untrusted github.event inputs.
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
+        with:
+          enable-cache: true
+
+      - name: Set up Python
+        run: uv python install 3.11
+
+      - name: Install deps and run full test suite
+        run: |
+          uv sync --all-extras
+          uv run ruff check .
+          uv run ruff format --check .
+          uv run pytest -v
+
+      - name: Build sdist and wheel
+        run: uv build
+
+      - name: Publish to PyPI
+        env:
+          UV_PUBLISH_TOKEN: ${{ secrets.PYPI_API_TOKEN }}
+        run: uv publish
+
+      - name: Create GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/*
+          generate_release_notes: true

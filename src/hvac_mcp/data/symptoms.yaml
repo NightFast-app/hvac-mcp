@@ -1,0 +1,305 @@
+# HVAC symptom → probable cause decision tree.
+#
+# Format:
+#   systems:
+#     <system_type>:
+#       symptoms:
+#         - name: Human-readable symptom label
+#           keywords: [list of lowercase substrings to match user input]
+#           causes:
+#             - cause: <probable cause>
+#               probability: <0.0-1.0, relative rank within this symptom>
+#               test: <how to verify this cause>
+#               fix: <typical repair>
+#
+# Probabilities are heuristic field-experience weights, not statistics.
+# Ordering within a cause list is by probability desc.
+
+systems:
+  split_ac:
+    symptoms:
+      - name: "No cooling — indoor blower running, warm air"
+        keywords: ["no cool", "not cooling", "no cold air", "warm air", "blowing warm", "warm vents"]
+        causes:
+          - cause: "Float / safety switch tripped by clogged condensate drain"
+            probability: 0.30
+            test: "Check float switch in primary drain pan and inline safety switch on secondary drain. Lift float manually — if unit starts, drain is backed up. Pour water into pan to confirm flow through to termination."
+            fix: "Clear drain line (wet/dry vac on cleanout, flush with warm water, add algae tabs). Replace float switch if stuck open. Common after storms, long runtimes, or algae-heavy summer months in humid climates (FL especially)."
+          - cause: "Outdoor unit not running (breaker/contactor/capacitor)"
+            probability: 0.30
+            test: "Check 240V at outdoor disconnect. If present, check contactor coil voltage and continuity. Meter dual run capacitor microfarads."
+            fix: "Reset breaker, replace contactor if pitted, replace cap matching original µF/voltage."
+          - cause: "Low refrigerant charge (leak)"
+            probability: 0.25
+            test: "Attach manifold — compare suction/liquid pressures to saturation at ambient. Electronic leak detector on evap, condenser, flare joints, Schrader cores."
+            fix: "Locate leak, repair, evacuate to 500µ, recharge by subcool/superheat."
+          - cause: "Failed compressor (open windings or seized)"
+            probability: 0.15
+            test: "Ohm compressor terminals C-R-S; check to ground. Megger if available."
+            fix: "Replace compressor; confirm oil type and charge match."
+          - cause: "Dirty condenser coil or failed outdoor fan motor"
+            probability: 0.15
+            test: "Visual condenser fin condition; check condenser fan blade rotation and motor amps vs nameplate."
+            fix: "Coil cleaning; replace fan motor and cap as a matched set."
+          - cause: "Thermostat calling but no 24V at contactor"
+            probability: 0.10
+            test: "Meter Y to C at outdoor unit during a call for cooling."
+            fix: "Trace low-voltage short/open back to stat or air handler board. Check 3A fuse on board."
+
+      - name: "Ice on suction line or evaporator"
+        keywords: ["ice", "frozen", "iced up", "ice on lineset", "ice on line"]
+        causes:
+          - cause: "Low indoor airflow (dirty filter, blocked return, failed blower cap)"
+            probability: 0.45
+            test: "Inspect filter and return grilles. Measure static pressure if available."
+            fix: "Replace filter, clear return path, replace blower run cap / ECM module."
+          - cause: "Low refrigerant charge"
+            probability: 0.30
+            test: "After thaw, run system and read subcool/superheat."
+            fix: "Find and repair leak before recharging."
+          - cause: "Stuck-closed TXV or plugged filter drier"
+            probability: 0.15
+            test: "High superheat with normal/high subcool points to TXV starvation."
+            fix: "Replace TXV or liquid line drier; evacuate and recharge."
+          - cause: "Dirty evaporator coil"
+            probability: 0.10
+            test: "Visual inspection — pull coil access panel."
+            fix: "Coil cleaning (chemical or mechanical, with proper PPE)."
+
+      - name: "Breaker trips on start or during run"
+        keywords: ["breaker trip", "breaker trips", "tripping breaker", "popping breaker"]
+        causes:
+          - cause: "Shorted compressor winding (to ground or phase-to-phase)"
+            probability: 0.35
+            test: "Ohm compressor terminals with disconnect off. Any reading to ground < 1MΩ is suspect."
+            fix: "Replace compressor."
+          - cause: "Failed contactor welded closed or shorted"
+            probability: 0.20
+            test: "Visual — points pitted or welded. Meter across open contacts."
+            fix: "Replace contactor."
+          - cause: "Weak breaker (heat fatigued)"
+            probability: 0.15
+            test: "Swap with known-good breaker of same rating."
+            fix: "Replace breaker."
+          - cause: "Wire insulation fault (rodent damage, pinched wire at disconnect)"
+            probability: 0.15
+            test: "Visual inspection of whip, disconnect, and compressor leads."
+            fix: "Repair/replace damaged wire; reroute away from hot surfaces."
+          - cause: "Locked-rotor condition (failed cap or seized compressor)"
+            probability: 0.15
+            test: "Measure starting amps — LRA on nameplate. Hard-start kit may temporarily overcome weak cap."
+            fix: "Replace cap; replace compressor if mechanically seized."
+
+      - name: "Short-cycling (unit turns on and off rapidly)"
+        keywords: ["short cycle", "short cycling", "cycling on and off", "cycles quickly", "turns on and off"]
+        causes:
+          - cause: "Low-pressure switch tripping from low charge"
+            probability: 0.30
+            test: "Read suction pressure at startup; verify LPS cut-in/cut-out spec."
+            fix: "Find leak, repair, recharge."
+          - cause: "High-pressure switch tripping (dirty condenser / failed fan)"
+            probability: 0.25
+            test: "Read head pressure; verify HPS reset."
+            fix: "Clean condenser, replace fan motor."
+          - cause: "Oversized system for load"
+            probability: 0.15
+            test: "Compare nameplate tonnage to Manual J load."
+            fix: "Stage or replace with properly sized unit; or install ECM blower with longer off-delay."
+          - cause: "Thermostat location (near supply register or in direct sun)"
+            probability: 0.15
+            test: "Check thermostat placement and differential setting."
+            fix: "Relocate thermostat or increase cycle-per-hour differential."
+          - cause: "Failed float switch or condensate backup"
+            probability: 0.15
+            test: "Check safety switch on drain pan and secondary drain line."
+            fix: "Clear drain, replace float switch if stuck open."
+
+      - name: "Compressor hums but won't start"
+        keywords: ["hums won't start", "won't start", "compressor hum", "humming"]
+        causes:
+          - cause: "Failed run capacitor"
+            probability: 0.60
+            test: "Meter µF with cap discharged; compare to rating (±6%)."
+            fix: "Replace capacitor."
+          - cause: "Seized compressor"
+            probability: 0.20
+            test: "After cap replacement, if still only hums, compressor is mechanically locked."
+            fix: "Try hard-start kit as temporary diagnosis; plan compressor replacement."
+          - cause: "Single-phasing (one leg of 240V lost)"
+            probability: 0.15
+            test: "Meter L1-L2, L1-G, L2-G at disconnect."
+            fix: "Repair utility feed, replace fuse/breaker."
+          - cause: "Start winding open (PSC compressor)"
+            probability: 0.05
+            test: "Ohm C-R vs C-S terminals; one should be open if winding burnt."
+            fix: "Replace compressor."
+
+      - name: "Water leaking from indoor unit / drain pan overflow"
+        keywords: ["water leak", "leaking water", "drain", "condensate", "pan overflow", "dripping"]
+        causes:
+          - cause: "Clogged primary drain line (biofilm / algae)"
+            probability: 0.60
+            test: "Pour water into drain pan — if it backs up, line is plugged."
+            fix: "Vacuum out drain via cleanout; add algae tablets; flush with warm water."
+          - cause: "Condensate pump failed"
+            probability: 0.15
+            test: "Lift float in pump reservoir; listen for motor."
+            fix: "Replace pump."
+          - cause: "Drain pan corroded through"
+            probability: 0.10
+            test: "Visual — rust stains or holes in secondary pan."
+            fix: "Replace drain pan."
+          - cause: "Frozen coil thawing out"
+            probability: 0.10
+            test: "Check for ice per 'Ice on suction line' tree first."
+            fix: "Address root cause of freezing."
+          - cause: "Improperly trapped drain (negative pressure pulling air)"
+            probability: 0.05
+            test: "Verify P-trap depth matches blower static."
+            fix: "Rework trap to correct depth."
+
+  heat_pump:
+    symptoms:
+      - name: "No heat — running in heat mode but cold air"
+        keywords: ["no heat", "cold air in heat", "not heating", "blowing cold"]
+        causes:
+          - cause: "Reversing valve stuck in cooling position"
+            probability: 0.25
+            test: "Feel suction vs discharge line temps at reversing valve — should swap in heat mode."
+            fix: "Tap valve body during call for heat; if no shift, replace valve or solenoid coil."
+          - cause: "Defrost cycle stuck on (board failure)"
+            probability: 0.20
+            test: "Watch defrost board LED pattern; check defrost termination thermistor."
+            fix: "Replace defrost board or thermistor."
+          - cause: "Low refrigerant charge (outdoor coil runs as evaporator)"
+            probability: 0.20
+            test: "Subcool/superheat in heat mode — reversed reading logic."
+            fix: "Find leak, repair, recharge."
+          - cause: "Auxiliary heat locked out or failed"
+            probability: 0.20
+            test: "Force W call; meter heat strip amps."
+            fix: "Replace failed strip element, sequencer, or relay."
+          - cause: "Outdoor unit iced over (stuck in defrost demand)"
+            probability: 0.15
+            test: "Visual — solid ice on outdoor coil."
+            fix: "Manual defrost; diagnose defrost control and outdoor fan."
+
+      - name: "Auxiliary / emergency heat runs constantly"
+        keywords: ["aux heat", "auxiliary heat", "emergency heat", "em heat always on", "aux always on"]
+        causes:
+          - cause: "Outdoor ambient below balance point (normal)"
+            probability: 0.30
+            test: "Check outdoor temp vs designed balance point (typ 30-35°F)."
+            fix: "Normal operation below balance point; confirm stat lockout set correctly."
+          - cause: "Low refrigerant — heat pump not producing enough capacity"
+            probability: 0.25
+            test: "Suction pressure low in heat mode."
+            fix: "Find leak, repair, recharge."
+          - cause: "Reversing valve partially stuck"
+            probability: 0.20
+            test: "Line temps at valve — discharge should be hot in heat mode."
+            fix: "Replace valve or coil."
+          - cause: "Outdoor fan motor weak / wrong rotation"
+            probability: 0.15
+            test: "Measure CFM, check blade direction."
+            fix: "Replace motor; correct blade orientation."
+          - cause: "Thermostat set to Em Heat by mistake"
+            probability: 0.10
+            test: "Confirm mode on stat display."
+            fix: "Switch to Heat mode."
+
+  furnace:
+    symptoms:
+      - name: "No ignition — inducer runs but no flame"
+        keywords: ["no ignition", "won't light", "no flame", "no heat furnace", "won't ignite"]
+        causes:
+          - cause: "Flame sensor dirty or failed"
+            probability: 0.30
+            test: "Microamp reading on flame sensor during trial for ignition (spec typ 1-10µA)."
+            fix: "Clean with fine Scotch-Brite; replace if damaged."
+          - cause: "Hot surface igniter cracked / open"
+            probability: 0.25
+            test: "Ohm HSI cold (typ 40-90Ω); visual for cracks."
+            fix: "Replace HSI; handle only by base."
+          - cause: "Gas valve failed or no gas supply"
+            probability: 0.20
+            test: "Meter 24V on gas valve during trial; verify upstream shutoff open and manifold pressure."
+            fix: "Replace gas valve; restore gas supply."
+          - cause: "Pressure switch stuck open (blocked flue / inducer weak)"
+            probability: 0.15
+            test: "Meter across PS during inducer run; inspect flue for blockage."
+            fix: "Clear flue; replace inducer or PS."
+          - cause: "Control board lockout (flame proving failure)"
+            probability: 0.10
+            test: "Check LED diagnostic code."
+            fix: "Clear fault after fixing root cause; replace board if fried."
+
+      - name: "Flame rollout / burners fire outside the cabinet"
+        keywords: ["rollout", "flame rollout", "fire outside", "scorching", "burner flashback"]
+        causes:
+          - cause: "Cracked heat exchanger"
+            probability: 0.30
+            test: "Combustion analyzer + visual inspection with blower on/off."
+            fix: "Red-tag and replace heat exchanger or furnace. This is a life-safety issue."
+          - cause: "Blocked flue / backdrafting"
+            probability: 0.25
+            test: "Visual flue inspection; draft test."
+            fix: "Clear flue, repair termination."
+          - cause: "Dirty / rusted burners"
+            probability: 0.20
+            test: "Visual — carbon buildup or rust flakes."
+            fix: "Pull and clean burners; replace if pitted through."
+          - cause: "Over-firing (high gas pressure)"
+            probability: 0.15
+            test: "Measure manifold pressure vs nameplate."
+            fix: "Adjust regulator; verify LP vs NG orifice."
+          - cause: "Failed rollout switch (should have tripped — safety concern)"
+            probability: 0.10
+            test: "Continuity across rollout switch cold."
+            fix: "Never bypass — replace and investigate cause."
+
+  mini_split:
+    symptoms:
+      - name: "Indoor unit flashing / error code displayed"
+        keywords: ["error code", "flashing", "blinking", "e1", "e5", "e6", "p4"]
+        causes:
+          - cause: "Communication error indoor ↔ outdoor"
+            probability: 0.35
+            test: "Verify S1/S2/S3 wire continuity and correct terminal match."
+            fix: "Repair/replace communication cable; confirm polarity per OEM."
+          - cause: "Indoor or outdoor thermistor failure"
+            probability: 0.25
+            test: "Ohm thermistor at known temp; compare to OEM table."
+            fix: "Replace thermistor."
+          - cause: "Low refrigerant / low-pressure lockout"
+            probability: 0.20
+            test: "Pressure test; look for flare leaks at head unit."
+            fix: "Reflare joint, evacuate, recharge."
+          - cause: "Outdoor PCB fault"
+            probability: 0.15
+            test: "Check DC bus voltage and IPM temps per service manual."
+            fix: "Replace outdoor control board."
+          - cause: "Indoor coil frozen (dirty filter)"
+            probability: 0.05
+            test: "Inspect filter and coil."
+            fix: "Clean filter and coil."
+
+      - name: "No communication indoor to outdoor"
+        keywords: ["no communication", "not communicating", "indoor outdoor", "comm error"]
+        causes:
+          - cause: "Miswired S1/S2/S3"
+            probability: 0.45
+            test: "Verify wire colors match on both ends per OEM diagram."
+            fix: "Correct wiring."
+          - cause: "Broken wire in line set whip"
+            probability: 0.25
+            test: "Continuity on each conductor end-to-end."
+            fix: "Replace communication cable."
+          - cause: "DC bus voltage missing (failed outdoor board)"
+            probability: 0.20
+            test: "Meter DC between S2-S3 per OEM spec."
+            fix: "Replace outdoor control board."
+          - cause: "Failed indoor main board"
+            probability: 0.10
+            test: "Swap indoor board if spare available."
+            fix: "Replace indoor control board."

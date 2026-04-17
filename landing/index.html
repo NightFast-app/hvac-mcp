@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>hvac-mcp — Claude & ChatGPT for HVAC techs</title>
+<meta name="description" content="The first Model Context Protocol server built by an HVAC tech, for HVAC techs. PT charts, fault codes, code lookup, pipe and duct sizing — right inside Claude or ChatGPT.">
+<meta property="og:title" content="hvac-mcp — Claude & ChatGPT for HVAC techs">
+<meta property="og:description" content="PT saturation, superheat/subcool, fault codes, code lookup, sizing. Free open-source tools + optional premium hosted tier.">
+<meta property="og:url" content="https://hvac-mcp.nightfast.tech">
+<meta property="og:type" content="website">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%94%A7%3C/text%3E%3C/svg%3E">
+<style>
+  :root {
+    --fg: #0b1220;
+    --muted: #4a5a70;
+    --bg: #f7f8fb;
+    --card: #ffffff;
+    --accent: #0a67ff;
+    --accent-ink: #ffffff;
+    --border: #dde3ec;
+    --code-bg: #0b1220;
+    --code-fg: #e6edf7;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--fg); font: 16px/1.55 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  .wrap { max-width: 920px; margin: 0 auto; padding: 24px; }
+  header { padding: 48px 24px 24px; text-align: center; }
+  header h1 { font-size: 44px; margin: 0 0 12px; letter-spacing: -0.02em; }
+  header p { font-size: 18px; color: var(--muted); max-width: 640px; margin: 0 auto 20px; }
+  .pill { display: inline-block; background: #e9f0ff; color: #0a67ff; padding: 4px 10px; border-radius: 999px; font-size: 13px; font-weight: 600; margin-bottom: 12px; }
+  .cta-row { margin-top: 18px; display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+  .btn { display: inline-block; padding: 12px 20px; border-radius: 10px; font-weight: 600; font-size: 15px; border: 1px solid var(--border); background: var(--card); color: var(--fg); }
+  .btn.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+  section { margin: 32px 0; }
+  h2 { font-size: 26px; margin: 0 0 12px; letter-spacing: -0.01em; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; }
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 18px; }
+  .card h3 { margin: 0 0 8px; font-size: 16px; }
+  .card p { margin: 0; color: var(--muted); font-size: 14px; }
+  pre { background: var(--code-bg); color: var(--code-fg); padding: 14px 18px; border-radius: 10px; overflow-x: auto; font-size: 13px; }
+  .pricing { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; }
+  .tier { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 20px; display: flex; flex-direction: column; }
+  .tier.highlight { border-color: var(--accent); box-shadow: 0 2px 14px rgba(10,103,255,0.08); }
+  .tier h3 { margin: 0 0 4px; font-size: 20px; }
+  .tier .price { font-size: 32px; font-weight: 700; margin: 6px 0 8px; }
+  .tier ul { padding-left: 18px; margin: 10px 0 16px; color: var(--muted); }
+  .tier li { margin: 4px 0; }
+  .tier .btn { text-align: center; margin-top: auto; }
+  footer { margin: 48px 0 24px; text-align: center; color: var(--muted); font-size: 13px; }
+  code { background: #eef2f8; padding: 2px 6px; border-radius: 4px; font-size: 13px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <span class="pill">🔧 Built by a working HVAC tech</span>
+  <h1>hvac-mcp</h1>
+  <p>Turn Claude, ChatGPT, or Cursor into a field-service-aware assistant. PT charts, superheat/subcool diagnosis, fault codes, IRC/IMC/IPC lookups with Florida amendments, pipe + duct sizing — all on your phone.</p>
+  <div class="cta-row">
+    <a class="btn primary" href="#pricing">See pricing</a>
+    <a class="btn" href="https://github.com/cybertec44/hvac-mcp" target="_blank" rel="noopener">GitHub (free, MIT)</a>
+  </div>
+</header>
+
+<section>
+  <h2>What it does</h2>
+  <div class="grid">
+    <div class="card"><h3>Refrigerant PT saturation</h3><p>R-410A, R-32, R-454B, R-22, R-134a. Bubble + dew for zeotropic blends.</p></div>
+    <div class="card"><h3>Charge diagnosis</h3><p>Superheat &amp; subcool with TXV / piston diagnosis and restriction detection.</p></div>
+    <div class="card"><h3>Symptom tree</h3><p>Ranked probable causes with test procedure + typical fix. Seeded by a 608 Universal tech.</p></div>
+    <div class="card"><h3>Fault code decoder</h3><p>Carrier, Trane, Goodman, Lennox, Rheem, York, Mitsubishi, Daikin. Alias-aware (Bryant → Carrier).</p></div>
+    <div class="card"><h3>Code lookup</h3><p>IRC / IMC / IPC citations with Florida amendments (HVHZ, condensate, wind anchor).</p></div>
+    <div class="card"><h3>Pipe + duct sizing</h3><p>DWV via IPC Table 710.1, supply via Hunter's, duct via ASHRAE friction chart + Huebscher.</p></div>
+  </div>
+</section>
+
+<section>
+  <h2>Install (free tier, 30 seconds)</h2>
+  <p>Have <a href="https://docs.astral.sh/uv/">uv</a> installed? Add this to your Claude Desktop config and restart:</p>
+  <pre>{
+  "mcpServers": {
+    "hvac": { "command": "uvx", "args": ["hvac-mcp"] }
+  }
+}</pre>
+  <p>Full client configs (Claude Code, Claude app, ChatGPT, Cursor) in <a href="https://github.com/cybertec44/hvac-mcp/blob/main/docs/CONNECTING.md">docs/CONNECTING.md</a>.</p>
+</section>
+
+<section id="pricing">
+  <h2>Pricing</h2>
+  <div class="pricing">
+    <div class="tier">
+      <h3>Free</h3>
+      <div class="price">$0</div>
+      <p>Self-hosted open source.</p>
+      <ul>
+        <li>All 7 field-diagnostic tools</li>
+        <li>Full Florida code amendments</li>
+        <li>Runs on your laptop</li>
+      </ul>
+      <a class="btn" href="https://github.com/cybertec44/hvac-mcp">Get on GitHub</a>
+    </div>
+    <div class="tier highlight">
+      <h3>Starter</h3>
+      <div class="price">$29<span style="font-size:14px;color:var(--muted)">/mo</span></div>
+      <p>Hosted — no install. For your phone.</p>
+      <ul>
+        <li>Everything in Free</li>
+        <li>Invoice &amp; estimate drafting</li>
+        <li>Parts cross-reference</li>
+        <li>Works in Claude mobile app</li>
+      </ul>
+      <a class="btn primary" href="#" data-stripe="starter">Buy Starter</a>
+    </div>
+    <div class="tier">
+      <h3>Pro</h3>
+      <div class="price">$79<span style="font-size:14px;color:var(--muted)">/mo</span></div>
+      <p>For shops doing volume.</p>
+      <ul>
+        <li>Everything in Starter</li>
+        <li>Florida county permit lookup</li>
+        <li>Priority support</li>
+      </ul>
+      <a class="btn" href="#" data-stripe="pro">Buy Pro</a>
+    </div>
+    <div class="tier">
+      <h3>Lifetime</h3>
+      <div class="price">$399</div>
+      <p>First 50 customers only.</p>
+      <ul>
+        <li>Everything in Pro</li>
+        <li>One-time payment</li>
+        <li>All future premium tools</li>
+      </ul>
+      <a class="btn" href="#" data-stripe="lifetime">Buy Lifetime</a>
+    </div>
+  </div>
+  <p style="margin-top:14px;color:var(--muted);font-size:14px">After purchase you'll get a connector URL + license key by email. Paste them into your MCP client. No account, no dashboard — just tools.</p>
+</section>
+
+<section>
+  <h2>Built by someone who actually does this work</h2>
+  <p>Kollin Croyle — EPA 608 Universal, 8+ years in HVAC and plumbing in Florida. Every tool in here solves a problem I've hit in the field. If it doesn't work on a real service call, it doesn't ship.</p>
+</section>
+
+<footer>
+  <p>MIT license. <a href="https://github.com/cybertec44/hvac-mcp">Source</a> · <a href="mailto:Kollinkiller4@ymail.com">Contact</a></p>
+  <p style="opacity:0.7;">Code and sizing outputs are informational only. Always verify with the Authority Having Jurisdiction (AHJ). This is a tool, not a substitute for a license or an engineer.</p>
+</footer>
+
+</div>
+
+<script>
+// Stripe checkout links — replace these after creating products in Stripe dashboard.
+// Pattern: https://buy.stripe.com/<id> for each tier.
+const STRIPE_LINKS = {
+  starter: 'https://buy.stripe.com/REPLACE_ME_STARTER',
+  pro: 'https://buy.stripe.com/REPLACE_ME_PRO',
+  lifetime: 'https://buy.stripe.com/REPLACE_ME_LIFETIME',
+};
+document.querySelectorAll('a[data-stripe]').forEach(a => {
+  const url = STRIPE_LINKS[a.dataset.stripe];
+  if (url) a.href = url;
+});
+</script>
+</body>
+</html>

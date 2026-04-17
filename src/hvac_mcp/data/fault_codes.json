@@ -1,0 +1,285 @@
+{
+  "_meta": {
+    "note": "Common residential HVAC fault codes seeded from publicly available OEM service literature. Field techs must confirm against the actual service manual for the exact model before acting.",
+    "sources": [
+      "Carrier Infinity / Performance service manuals",
+      "Trane XL / XV communicating service manuals",
+      "Goodman / Amana Comfortbridge service manuals",
+      "Lennox iComfort S30/E30 service manuals",
+      "Rheem / Ruud EcoNet installation instructions",
+      "York Affinity service manuals",
+      "Mitsubishi Electric Mr. Slim service manuals",
+      "Daikin VRV/RA service manuals"
+    ]
+  },
+  "brands": {
+    "carrier": {
+      "aliases": ["bryant", "payne", "day & night", "heil"],
+      "codes": {
+        "13": {
+          "meaning": "Thermostat calling for heating and cooling simultaneously.",
+          "causes": [
+            "Miswired thermostat (Y and W energized together)",
+            "Shorted thermostat cable between air handler and stat",
+            "Failed thermostat outputting conflicting calls"
+          ],
+          "fix": "Meter at the control board — if Y and W are both hot with stat removed, short is in the cable. If only when stat is connected, replace stat.",
+          "source": "Carrier Infinity service manual"
+        },
+        "14": {
+          "meaning": "Blower interlock / pressure switch failure during cooling.",
+          "causes": [
+            "Blower not running (capacitor, ECM module, or bad relay)",
+            "Pressure switch tubing pinched or disconnected",
+            "Blocked combustion air intake (on 90+ furnaces sharing board)"
+          ],
+          "fix": "Confirm blower amp draw against nameplate. Inspect PS tubing and inducer pressure.",
+          "source": "Carrier Infinity service manual"
+        },
+        "33": {
+          "meaning": "Limit switch circuit open.",
+          "causes": [
+            "Dirty filter / blocked return restricting airflow",
+            "Failed high-limit switch (manual reset tripped)",
+            "Closed supply registers or collapsed flex duct"
+          ],
+          "fix": "Replace filter, verify airflow, test limit switch continuity at room temp (should be closed).",
+          "source": "Carrier Infinity service manual"
+        },
+        "34": {
+          "meaning": "Ignition proving failure — burners failed to light within trial.",
+          "causes": [
+            "Dirty flame sensor (low µA)",
+            "Cracked hot surface igniter",
+            "Low gas pressure / closed upstream shutoff",
+            "Flame rod grounded or loose"
+          ],
+          "fix": "Check flame signal in µA (spec typ 1-10µA). Ohm HSI cold. Verify manifold pressure matches nameplate.",
+          "source": "Carrier Infinity service manual"
+        }
+      }
+    },
+    "trane": {
+      "aliases": ["american standard"],
+      "codes": {
+        "2_flash": {
+          "meaning": "External lockout — system has locked out after repeated retries.",
+          "causes": [
+            "Ignition failure (see flame sensor / HSI / gas supply)",
+            "Limit trip repeated",
+            "Pressure switch failure repeated"
+          ],
+          "fix": "Clear call for heat and cycle power to reset. Diagnose root fault from the code that precedes lockout.",
+          "source": "Trane XL/XV service manual"
+        },
+        "3_flash": {
+          "meaning": "Pressure switch stuck open with inducer running.",
+          "causes": [
+            "Blocked or disconnected PS tubing",
+            "Cracked inducer housing / weak inducer motor",
+            "Blocked flue / ice on termination"
+          ],
+          "fix": "Meter across PS during inducer run; inspect tubing and flue path.",
+          "source": "Trane XL/XV service manual"
+        },
+        "4_flash": {
+          "meaning": "High-limit switch open.",
+          "causes": [
+            "Restricted airflow (filter, coil, duct collapse)",
+            "Failed blower motor",
+            "Over-firing (gas pressure above spec)"
+          ],
+          "fix": "Verify airflow and blower amps. Check manifold pressure.",
+          "source": "Trane XL/XV service manual"
+        }
+      }
+    },
+    "goodman": {
+      "aliases": ["amana", "daikin-goodman"],
+      "codes": {
+        "E1": {
+          "meaning": "Indoor thermistor open or short.",
+          "causes": [
+            "Disconnected indoor thermistor connector",
+            "Failed thermistor element",
+            "Water-damaged PCB terminal"
+          ],
+          "fix": "Ohm thermistor at room temp; consult OEM resistance table. Replace if out of spec.",
+          "source": "Goodman Comfortbridge service manual"
+        },
+        "E2": {
+          "meaning": "Indoor coil thermistor fault.",
+          "causes": [
+            "Thermistor not seated against coil",
+            "Failed thermistor"
+          ],
+          "fix": "Reseat against coil return bend; replace if resistance out of spec.",
+          "source": "Goodman Comfortbridge service manual"
+        },
+        "E6": {
+          "meaning": "Communication failure between thermostat and air handler.",
+          "causes": [
+            "Miswired comm bus (A/B swapped)",
+            "Broken thermostat cable",
+            "Failed stat"
+          ],
+          "fix": "Verify A/B terminations; continuity end-to-end on each conductor.",
+          "source": "Goodman Comfortbridge service manual"
+        }
+      }
+    },
+    "lennox": {
+      "aliases": ["armstrong", "ducane"],
+      "codes": {
+        "E200": {
+          "meaning": "Indoor blower motor communication loss.",
+          "causes": [
+            "Failed ECM motor module",
+            "Harness unplugged at motor or control board"
+          ],
+          "fix": "Inspect harness; swap ECM module if bench-tested bad.",
+          "source": "Lennox iComfort service manual"
+        },
+        "E201": {
+          "meaning": "Indoor blower motor locked rotor.",
+          "causes": [
+            "Failed bearings",
+            "Foreign object in blower wheel",
+            "Failed ECM module"
+          ],
+          "fix": "Spin wheel by hand with power off — should turn freely. Replace motor if seized.",
+          "source": "Lennox iComfort service manual"
+        },
+        "E223": {
+          "meaning": "Pressure switch failed to close.",
+          "causes": [
+            "Weak inducer",
+            "Blocked flue or intake",
+            "Disconnected PS tubing"
+          ],
+          "fix": "Measure PS closure during inducer run (typ -0.30 to -1.0 in.wc).",
+          "source": "Lennox iComfort service manual"
+        }
+      }
+    },
+    "rheem": {
+      "aliases": ["ruud", "weatherking"],
+      "codes": {
+        "57": {
+          "meaning": "Low-pressure switch (outdoor) open.",
+          "causes": [
+            "Low refrigerant charge",
+            "Failed LPS",
+            "Restriction (drier/TXV)"
+          ],
+          "fix": "Manifold test — compare suction pressure at ambient saturation.",
+          "source": "Rheem EcoNet installation manual"
+        },
+        "93": {
+          "meaning": "High-pressure switch (outdoor) open.",
+          "causes": [
+            "Dirty condenser coil",
+            "Failed condenser fan motor",
+            "Overcharge"
+          ],
+          "fix": "Clean coil, verify fan amps and rotation, check subcool.",
+          "source": "Rheem EcoNet installation manual"
+        }
+      }
+    },
+    "york": {
+      "aliases": ["coleman", "luxaire", "champion", "fraser-johnston"],
+      "codes": {
+        "44": {
+          "meaning": "Ignition lockout after failed trials.",
+          "causes": [
+            "Flame sensor dirty",
+            "HSI failure",
+            "Low gas pressure"
+          ],
+          "fix": "Clean flame sensor; ohm HSI; measure manifold pressure.",
+          "source": "York Affinity service manual"
+        },
+        "88": {
+          "meaning": "Flame sensed when none should be present.",
+          "causes": [
+            "Gas valve leaking by",
+            "Flame sensor grounded causing false signal",
+            "Control board failure"
+          ],
+          "fix": "Safety issue — shut off gas at valve. Test gas valve with manometer; replace if leaking by.",
+          "source": "York Affinity service manual"
+        }
+      }
+    },
+    "mitsubishi": {
+      "aliases": ["mr slim", "mitsubishi electric"],
+      "codes": {
+        "E0": {
+          "meaning": "Remote controller transmission error.",
+          "causes": [
+            "Disconnected controller cable",
+            "Failed remote controller",
+            "Noise on serial line"
+          ],
+          "fix": "Check controller-to-indoor wiring (non-polar 2-conductor); replace controller if needed.",
+          "source": "Mitsubishi Mr. Slim service manual"
+        },
+        "E5": {
+          "meaning": "Communication error — indoor to outdoor.",
+          "causes": [
+            "Miswired S1/S2/S3",
+            "Broken conductor in line set whip",
+            "Failed outdoor control board"
+          ],
+          "fix": "Continuity on all 3 comm conductors; meter DC across S2-S3 per OEM spec.",
+          "source": "Mitsubishi Mr. Slim service manual"
+        },
+        "P4": {
+          "meaning": "Drain sensor / float switch fault.",
+          "causes": [
+            "Clogged condensate drain tripping float",
+            "Failed float switch",
+            "Disconnected sensor connector"
+          ],
+          "fix": "Clear drain line, test float with unit, replace if stuck.",
+          "source": "Mitsubishi Mr. Slim service manual"
+        }
+      }
+    },
+    "daikin": {
+      "aliases": ["daikin-goodman-vrv"],
+      "codes": {
+        "A1": {
+          "meaning": "Indoor unit PCB defect.",
+          "causes": [
+            "Noise / power surge damage",
+            "Failed main PCB component"
+          ],
+          "fix": "Cycle power; if persistent, replace indoor main PCB.",
+          "source": "Daikin RA service manual"
+        },
+        "A3": {
+          "meaning": "Drain water level system abnormal.",
+          "causes": [
+            "Drain pump failure (cassette/ducted units)",
+            "Clogged drain hose",
+            "Failed drain float switch"
+          ],
+          "fix": "Test drain pump operation; clear hose; replace float switch if stuck.",
+          "source": "Daikin RA service manual"
+        },
+        "U4": {
+          "meaning": "Communication failure between indoor and outdoor units.",
+          "causes": [
+            "F1/F2 comm miswired or broken",
+            "Wrong pairing address",
+            "Failed outdoor PCB"
+          ],
+          "fix": "Verify F1/F2 continuity and polarity; check DIP-switch address.",
+          "source": "Daikin RA service manual"
+        }
+      }
+    }
+  }
+}

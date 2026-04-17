@@ -1,0 +1,76 @@
+{
+  "_meta": {
+    "note": "Saturation pressure (psig) / temperature (°F) pairs. Bubble and dew point for zeotropic blends.",
+    "sources": ["Refrigerant manufacturer PT charts (Chemours, Honeywell, Daikin)"],
+    "units": { "pressure": "psig", "temperature": "F" }
+  },
+  "R-410A": {
+    "near_azeotropic": true,
+    "glide_f": 0.3,
+    "pairs": [
+      { "temp_f": -40, "pressure_psig": 10.8 },
+      { "temp_f": -20, "pressure_psig": 27.8 },
+      { "temp_f": 0,   "pressure_psig": 48.2 },
+      { "temp_f": 20,  "pressure_psig": 78.3 },
+      { "temp_f": 30,  "pressure_psig": 94.9 },
+      { "temp_f": 40,  "pressure_psig": 118.5 },
+      { "temp_f": 50,  "pressure_psig": 142.2 },
+      { "temp_f": 60,  "pressure_psig": 170.4 },
+      { "temp_f": 70,  "pressure_psig": 201.5 },
+      { "temp_f": 80,  "pressure_psig": 235.6 },
+      { "temp_f": 90,  "pressure_psig": 273.1 },
+      { "temp_f": 100, "pressure_psig": 314.2 },
+      { "temp_f": 110, "pressure_psig": 359.4 },
+      { "temp_f": 120, "pressure_psig": 408.8 },
+      { "temp_f": 130, "pressure_psig": 462.9 }
+    ]
+  },
+  "R-32": {
+    "near_azeotropic": true,
+    "glide_f": 0.0,
+    "pairs": [
+      { "temp_f": -40, "pressure_psig": 6.5 },
+      { "temp_f": 0,   "pressure_psig": 41.3 },
+      { "temp_f": 40,  "pressure_psig": 109.5 },
+      { "temp_f": 80,  "pressure_psig": 219.7 },
+      { "temp_f": 120, "pressure_psig": 382.4 }
+    ]
+  },
+  "R-454B": {
+    "near_azeotropic": false,
+    "glide_f": 1.4,
+    "note": "Zeotropic blend — use bubble point for subcool, dew point for superheat.",
+    "pairs_bubble": [
+      { "temp_f": 40, "pressure_psig": 118.0 },
+      { "temp_f": 80, "pressure_psig": 233.0 },
+      { "temp_f": 120, "pressure_psig": 401.0 }
+    ],
+    "pairs_dew": [
+      { "temp_f": 40, "pressure_psig": 114.5 },
+      { "temp_f": 80, "pressure_psig": 226.5 },
+      { "temp_f": 120, "pressure_psig": 391.0 }
+    ]
+  },
+  "R-22": {
+    "near_azeotropic": true,
+    "glide_f": 0.0,
+    "pairs": [
+      { "temp_f": -40, "pressure_psig": 0.5 },
+      { "temp_f": 0,   "pressure_psig": 24.0 },
+      { "temp_f": 40,  "pressure_psig": 68.5 },
+      { "temp_f": 80,  "pressure_psig": 143.6 },
+      { "temp_f": 120, "pressure_psig": 260.0 }
+    ]
+  },
+  "R-134a": {
+    "near_azeotropic": true,
+    "glide_f": 0.0,
+    "pairs": [
+      { "temp_f": -40, "pressure_psig": -7.2 },
+      { "temp_f": 0,   "pressure_psig": 6.5 },
+      { "temp_f": 40,  "pressure_psig": 35.0 },
+      { "temp_f": 80,  "pressure_psig": 86.7 },
+      { "temp_f": 120, "pressure_psig": 171.1 }
+    ]
+  }
+}
