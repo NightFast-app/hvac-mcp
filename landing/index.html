@@ -4,53 +4,183 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>hvac-mcp — Claude & ChatGPT for HVAC techs</title>
-<meta name="description" content="The first Model Context Protocol server built by an HVAC tech, for HVAC techs. PT charts, fault codes, code lookup, pipe and duct sizing — right inside Claude or ChatGPT.">
+<meta name="description" content="PT charts, superheat/subcool, fault codes, code lookup, pipe + duct sizing — right inside Claude, ChatGPT, or Cursor. Built by a 608 Universal tech with 8 years in the Florida field.">
+<meta name="theme-color" content="#0a67ff" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0b1220" media="(prefers-color-scheme: dark)">
 <meta property="og:title" content="hvac-mcp — Claude & ChatGPT for HVAC techs">
-<meta property="og:description" content="PT saturation, superheat/subcool, fault codes, code lookup, sizing. Free open-source tools + optional premium hosted tier.">
-<meta property="og:url" content="https://hvac-mcp.nightfast.tech">
+<meta property="og:description" content="PT saturation, superheat/subcool, fault codes, IRC/IMC/IPC lookups, pipe + duct sizing. Free open source + $29/mo hosted tier. Try the live calculator on the page.">
+<meta property="og:url" content="https://nightfast-app.github.io/hvac-mcp/">
 <meta property="og:type" content="website">
+<meta property="og:image" content="https://nightfast-app.github.io/hvac-mcp/og.svg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="canonical" href="https://nightfast-app.github.io/hvac-mcp/">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%94%A7%3C/text%3E%3C/svg%3E">
 <style>
   :root {
     --fg: #0b1220;
+    --fg-soft: #293447;
     --muted: #4a5a70;
     --bg: #f7f8fb;
+    --bg-soft: #eef2f8;
     --card: #ffffff;
     --accent: #0a67ff;
+    --accent-hover: #0855d6;
     --accent-ink: #ffffff;
+    --success: #10a36e;
+    --warn: #c77b00;
     --border: #dde3ec;
     --code-bg: #0b1220;
     --code-fg: #e6edf7;
+    --shadow: 0 1px 2px rgba(11,18,32,0.04), 0 6px 18px rgba(11,18,32,0.04);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --fg: #e6edf7;
+      --fg-soft: #c2cbdb;
+      --muted: #8a97ad;
+      --bg: #0b1220;
+      --bg-soft: #141c2e;
+      --card: #141c2e;
+      --accent: #4b90ff;
+      --accent-hover: #6ba4ff;
+      --accent-ink: #0b1220;
+      --border: #263149;
+      --code-bg: #050912;
+      --code-fg: #e6edf7;
+      --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 6px 18px rgba(0,0,0,0.3);
+    }
   }
   * { box-sizing: border-box; }
-  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--fg); font: 16px/1.55 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--fg);
+    font: 16px/1.55 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
   a { color: var(--accent); text-decoration: none; }
   a:hover { text-decoration: underline; }
-  .wrap { max-width: 920px; margin: 0 auto; padding: 24px; }
-  header { padding: 48px 24px 24px; text-align: center; }
-  header h1 { font-size: 44px; margin: 0 0 12px; letter-spacing: -0.02em; }
-  header p { font-size: 18px; color: var(--muted); max-width: 640px; margin: 0 auto 20px; }
-  .pill { display: inline-block; background: #e9f0ff; color: #0a67ff; padding: 4px 10px; border-radius: 999px; font-size: 13px; font-weight: 600; margin-bottom: 12px; }
-  .cta-row { margin-top: 18px; display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
-  .btn { display: inline-block; padding: 12px 20px; border-radius: 10px; font-weight: 600; font-size: 15px; border: 1px solid var(--border); background: var(--card); color: var(--fg); }
+  .wrap { max-width: 980px; margin: 0 auto; padding: 24px 20px; }
+  header { padding: 40px 20px 16px; text-align: center; }
+  header .pill { display: inline-block; background: var(--bg-soft); color: var(--accent);
+    padding: 6px 12px; border-radius: 999px; font-size: 13px; font-weight: 600; margin-bottom: 14px; }
+  header h1 { font-size: clamp(36px, 6vw, 52px); margin: 0 0 14px; letter-spacing: -0.02em; line-height: 1.05; }
+  header .lead { font-size: clamp(17px, 2.2vw, 20px); color: var(--muted); max-width: 660px; margin: 0 auto 22px; }
+  .cta-row { margin-top: 8px; display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+  .btn { display: inline-block; padding: 12px 22px; border-radius: 10px; font-weight: 600; font-size: 15px;
+    border: 1px solid var(--border); background: var(--card); color: var(--fg); cursor: pointer;
+    transition: transform 80ms ease, background 80ms ease, border-color 80ms ease; }
+  .btn:hover { text-decoration: none; border-color: var(--accent); }
+  .btn:active { transform: translateY(1px); }
   .btn.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
-  section { margin: 32px 0; }
-  h2 { font-size: 26px; margin: 0 0 12px; letter-spacing: -0.01em; }
+  .btn.primary:hover { background: var(--accent-hover); border-color: var(--accent-hover); }
+  .btn.sm { padding: 8px 14px; font-size: 14px; }
+  section { margin: 40px 0; }
+  h2 { font-size: clamp(24px, 3.2vw, 30px); margin: 0 0 8px; letter-spacing: -0.01em; }
+  .section-sub { color: var(--muted); margin: 0 0 18px; font-size: 16px; }
+
+  /* Hero conversation card */
+  .convo { background: var(--card); border: 1px solid var(--border); border-radius: 14px;
+    padding: 18px; box-shadow: var(--shadow); max-width: 720px; margin: 8px auto 0; text-align: left; }
+  .msg { display: flex; gap: 10px; padding: 10px 0; }
+  .msg + .msg { border-top: 1px dashed var(--border); }
+  .msg .who { font-weight: 700; width: 62px; flex-shrink: 0; color: var(--muted); font-size: 13px; padding-top: 2px; }
+  .msg .body { flex: 1; font-size: 15px; color: var(--fg-soft); }
+  .msg.claude .who { color: var(--accent); }
+  .tool-call { background: var(--bg-soft); border-left: 3px solid var(--accent); padding: 6px 10px;
+    border-radius: 6px; font: 13px ui-monospace, Menlo, monospace; margin: 6px 0; color: var(--muted); }
+
+  /* Live calculator */
+  .calc { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 22px;
+    box-shadow: var(--shadow); }
+  .calc-row { display: grid; grid-template-columns: 1fr; gap: 12px; margin: 10px 0; }
+  @media (min-width: 640px) {
+    .calc-row.two { grid-template-columns: 1fr 1fr; }
+    .calc-row.three { grid-template-columns: 1fr 1fr 1fr; }
+  }
+  .field { display: flex; flex-direction: column; gap: 4px; }
+  .field label { font-size: 13px; font-weight: 600; color: var(--muted); }
+  .field input, .field select { padding: 10px 12px; font: 15px ui-monospace, Menlo, monospace;
+    border: 1px solid var(--border); border-radius: 8px; background: var(--bg); color: var(--fg);
+    min-height: 44px; }
+  .field input:focus, .field select:focus { outline: 2px solid var(--accent); outline-offset: -1px; }
+  .modebtns { display: flex; gap: 8px; margin: 4px 0 0; }
+  .modebtn { flex: 1; padding: 10px; border: 1px solid var(--border); background: var(--bg); color: var(--fg);
+    border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; min-height: 44px; }
+  .modebtn.on { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+  .result { margin: 18px 0 6px; padding: 16px; background: var(--bg-soft); border-radius: 10px;
+    font: 15px/1.5 system-ui; }
+  .result .big { font: 700 28px/1 ui-monospace, Menlo, monospace; color: var(--fg); }
+  .result .label { font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); margin-bottom: 4px; }
+  .result-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .result .diag { margin-top: 12px; font-size: 14px; }
+  .diag.in_spec { color: var(--success); font-weight: 600; }
+  .diag.undercharged, .diag.overcharged, .diag.restriction_suspected { color: var(--warn); font-weight: 600; }
+  .diag.bad { color: #c43; font-weight: 600; }
+  .hint { font-size: 12px; color: var(--muted); margin-top: 10px; line-height: 1.5; }
+
+  /* Feature grid */
   .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; }
-  .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 18px; }
-  .card h3 { margin: 0 0 8px; font-size: 16px; }
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 18px;
+    box-shadow: var(--shadow); }
+  .card h3 { margin: 0 0 6px; font-size: 16px; }
   .card p { margin: 0; color: var(--muted); font-size: 14px; }
-  pre { background: var(--code-bg); color: var(--code-fg); padding: 14px 18px; border-radius: 10px; overflow-x: auto; font-size: 13px; }
+
+  /* Install tabs */
+  .tabs { display: flex; gap: 4px; overflow-x: auto; padding-bottom: 2px; margin-bottom: 12px; }
+  .tabs button { padding: 10px 14px; border: 1px solid var(--border); background: var(--card); color: var(--fg);
+    border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; white-space: nowrap; min-height: 44px; }
+  .tabs button.on { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+  .tab-panel { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 18px;
+    box-shadow: var(--shadow); }
+  .tab-panel.hidden { display: none; }
+  .code-block { position: relative; }
+  pre { background: var(--code-bg); color: var(--code-fg); padding: 14px 16px; border-radius: 10px;
+    overflow-x: auto; font: 13px ui-monospace, Menlo, monospace; line-height: 1.5; margin: 0; }
+  .copy { position: absolute; top: 8px; right: 8px; padding: 6px 10px; font-size: 12px; font-weight: 600;
+    border: 1px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.1); color: #fff;
+    border-radius: 6px; cursor: pointer; }
+  .copy.copied { background: var(--success); border-color: var(--success); }
+  .step { font-size: 14px; color: var(--muted); margin: 10px 0 6px; }
+
+  /* Pricing */
   .pricing { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; }
-  .tier { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 20px; display: flex; flex-direction: column; }
-  .tier.highlight { border-color: var(--accent); box-shadow: 0 2px 14px rgba(10,103,255,0.08); }
+  .tier { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 20px;
+    display: flex; flex-direction: column; box-shadow: var(--shadow); }
+  .tier.highlight { border-color: var(--accent); box-shadow: 0 2px 14px rgba(10,103,255,0.18); position: relative; }
+  .tier.highlight::after { content: "most popular"; position: absolute; top: -10px; right: 14px;
+    background: var(--accent); color: var(--accent-ink); padding: 3px 10px; border-radius: 999px;
+    font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; }
   .tier h3 { margin: 0 0 4px; font-size: 20px; }
   .tier .price { font-size: 32px; font-weight: 700; margin: 6px 0 8px; }
   .tier ul { padding-left: 18px; margin: 10px 0 16px; color: var(--muted); }
   .tier li { margin: 4px 0; }
-  .tier .btn { text-align: center; margin-top: auto; }
-  footer { margin: 48px 0 24px; text-align: center; color: var(--muted); font-size: 13px; }
-  code { background: #eef2f8; padding: 2px 6px; border-radius: 4px; font-size: 13px; }
+  .tier .btn { text-align: center; margin-top: auto; min-height: 44px; }
+
+  /* FAQ */
+  details { background: var(--card); border: 1px solid var(--border); border-radius: 10px;
+    padding: 14px 18px; margin-bottom: 10px; }
+  details[open] { box-shadow: var(--shadow); }
+  summary { font-weight: 600; cursor: pointer; font-size: 15px; list-style: none; position: relative;
+    padding-right: 24px; }
+  summary::-webkit-details-marker { display: none; }
+  summary::after { content: "+"; position: absolute; right: 0; top: 50%; transform: translateY(-50%);
+    font-size: 20px; color: var(--muted); }
+  details[open] summary::after { content: "−"; }
+  details p { margin: 10px 0 0; font-size: 14px; color: var(--fg-soft); }
+  details code { background: var(--bg-soft); padding: 2px 6px; border-radius: 4px; font-size: 13px; }
+
+  /* Footer */
+  footer { margin: 56px 0 24px; padding: 24px 0; border-top: 1px solid var(--border);
+    color: var(--muted); font-size: 13px; }
+  .footer-grid { display: grid; grid-template-columns: 1fr; gap: 18px; }
+  @media (min-width: 640px) { .footer-grid { grid-template-columns: 2fr 1fr 1fr 1fr; } }
+  .footer-col h4 { font-size: 13px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--fg-soft);
+    margin: 0 0 8px; font-weight: 700; }
+  .footer-col p, .footer-col a { display: block; margin: 4px 0; font-size: 13px; }
+  .disclaimer { margin-top: 20px; opacity: 0.8; line-height: 1.6; }
+
+  code { background: var(--bg-soft); padding: 2px 6px; border-radius: 4px; font: 13px ui-monospace, Menlo, monospace; }
+
+  @media (max-width: 480px) {
+    header { padding: 28px 0 8px; }
+    section { margin: 32px 0; }
+  }
 </style>
 </head>
 <body>
@@ -58,47 +188,195 @@
 
 <header>
   <span class="pill">🔧 Built by a working HVAC tech</span>
-  <h1>hvac-mcp</h1>
-  <p>Turn Claude, ChatGPT, or Cursor into a field-service-aware assistant. PT charts, superheat/subcool diagnosis, fault codes, IRC/IMC/IPC lookups with Florida amendments, pipe + duct sizing — all on your phone.</p>
+  <h1>Claude &amp; ChatGPT for HVAC techs</h1>
+  <p class="lead">PT charts, charge diagnosis, fault codes, IRC/IMC/IPC with Florida amendments, pipe + duct sizing — right inside the chatbot you already use on your phone.</p>
   <div class="cta-row">
-    <a class="btn primary" href="#pricing">See pricing</a>
+    <a class="btn primary" href="#try">Try the calculator ↓</a>
     <a class="btn" href="https://github.com/NightFast-app/hvac-mcp" target="_blank" rel="noopener">GitHub (free, MIT)</a>
+  </div>
+
+  <div class="convo" aria-label="Example conversation">
+    <div class="msg"><div class="who">You</div><div class="body">R-410A, 118 psig suction, 50°F line temp. 380 psig liquid, 105°F. TXV — what do I have?</div></div>
+    <div class="msg claude"><div class="who">Claude</div><div class="body">
+      <div class="tool-call">🔧 calling hvac_refrigerant_charge_check …</div>
+      <strong>Superheat 10.0°F</strong> · <strong>Subcool 10.0°F</strong> · TXV in-spec. Charge looks correct — subcool is right in the 8-12°F window.
+    </div></div>
+    <div class="msg"><div class="who">You</div><div class="body">Carrier code 33, what do I look at first?</div></div>
+    <div class="msg claude"><div class="who">Claude</div><div class="body">
+      <div class="tool-call">🔧 calling hvac_fault_code_lookup (brand=carrier, code=33) …</div>
+      <strong>Limit switch circuit open.</strong> 80% of the time it's airflow: dirty filter, closed registers, or collapsed flex duct. Start there — replace filter, check the return.
+    </div></div>
   </div>
 </header>
 
+<!-- LIVE CALCULATOR -->
+<section id="try">
+  <h2>Try it right here</h2>
+  <p class="section-sub">Same PT tables the MCP server runs, running in your browser. No install, no signup — change the numbers and see.</p>
+
+  <div class="calc">
+    <div class="calc-row three">
+      <div class="field">
+        <label for="ref">Refrigerant</label>
+        <select id="ref">
+          <option value="R-410A" selected>R-410A</option>
+          <option value="R-32">R-32</option>
+          <option value="R-454B">R-454B (A2L)</option>
+          <option value="R-22">R-22</option>
+          <option value="R-134a">R-134a</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Mode</label>
+        <div class="modebtns" role="tablist">
+          <button id="modeP" class="modebtn on" type="button">Pressure → Temp</button>
+          <button id="modeT" class="modebtn" type="button">Temp → Pressure</button>
+        </div>
+      </div>
+      <div class="field">
+        <label for="input"><span id="input-label">Pressure (psig)</span></label>
+        <input id="input" type="number" step="0.1" value="118.5" inputmode="decimal">
+      </div>
+    </div>
+
+    <div class="result">
+      <div class="result-row">
+        <div>
+          <div class="label" id="out-label-a">Saturation temp</div>
+          <div class="big" id="out-a">40.0 °F</div>
+        </div>
+        <div>
+          <div class="label" id="out-label-b">Glide / dew point</div>
+          <div class="big" id="out-b">—</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="calc-row two">
+      <div class="field">
+        <label for="suction-t">Suction line temp (°F) <span class="hint" style="display:inline;color:var(--muted)">optional</span></label>
+        <input id="suction-t" type="number" step="0.1" value="50" inputmode="decimal">
+      </div>
+      <div class="field">
+        <label for="liquid-t">Liquid line temp (°F) <span class="hint" style="display:inline;color:var(--muted)">optional</span></label>
+        <input id="liquid-t" type="number" step="0.1" value="105" inputmode="decimal">
+      </div>
+    </div>
+
+    <div id="diag-box" class="result" style="background: var(--bg-soft);">
+      <div class="result-row">
+        <div>
+          <div class="label">Superheat</div>
+          <div class="big" id="sh-val">—</div>
+          <div class="hint" id="sh-hint"></div>
+        </div>
+        <div>
+          <div class="label">Subcool</div>
+          <div class="big" id="sc-val">—</div>
+          <div class="hint" id="sc-hint"></div>
+        </div>
+      </div>
+      <div class="diag" id="diag-text"></div>
+    </div>
+
+    <div class="hint">
+      Superheat uses the suction pressure from above. Subcool uses the liquid pressure — enter it in pressure-mode and switch to read. Or just use Claude and hand it both pressures at once.
+      In the app, this is <code>hvac_refrigerant_charge_check</code>.
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
 <section>
-  <h2>What it does</h2>
+  <h2>Everything in the free tier</h2>
+  <p class="section-sub">7 tools. Zero external network calls. Runs on your laptop or on your phone via Claude.</p>
   <div class="grid">
     <div class="card"><h3>Refrigerant PT saturation</h3><p>R-410A, R-32, R-454B, R-22, R-134a. Bubble + dew for zeotropic blends.</p></div>
-    <div class="card"><h3>Charge diagnosis</h3><p>Superheat &amp; subcool with TXV / piston diagnosis and restriction detection.</p></div>
-    <div class="card"><h3>Symptom tree</h3><p>Ranked probable causes with test procedure + typical fix. Seeded by a 608 Universal tech.</p></div>
-    <div class="card"><h3>Fault code decoder</h3><p>Carrier, Trane, Goodman, Lennox, Rheem, York, Mitsubishi, Daikin. Alias-aware (Bryant → Carrier).</p></div>
-    <div class="card"><h3>Code lookup</h3><p>IRC / IMC / IPC citations with Florida amendments (HVHZ, condensate, wind anchor).</p></div>
+    <div class="card"><h3>Charge diagnosis</h3><p>Superheat &amp; subcool with TXV / piston logic and restriction detection.</p></div>
+    <div class="card"><h3>Symptom tree</h3><p>Ranked probable causes with test procedure and typical fix. Field-seeded.</p></div>
+    <div class="card"><h3>Fault code decoder</h3><p>8 brands. Alias-aware (Bryant → Carrier, Ruud → Rheem, American Standard → Trane).</p></div>
+    <div class="card"><h3>Code lookup</h3><p>IRC / IMC / IPC with FL amendments (HVHZ, condensate, wind anchor). AHJ disclaimer baked in.</p></div>
     <div class="card"><h3>Pipe + duct sizing</h3><p>DWV via IPC Table 710.1, supply via Hunter's, duct via ASHRAE friction chart + Huebscher.</p></div>
   </div>
 </section>
 
-<section>
-  <h2>Install (free tier, 30 seconds)</h2>
-  <p>Have <a href="https://docs.astral.sh/uv/">uv</a> installed? Add this to your Claude Desktop config and restart:</p>
-  <pre>{
+<!-- INSTALL TABS -->
+<section id="install">
+  <h2>Install — 30 seconds</h2>
+  <p class="section-sub">Pick your client. Requires <a href="https://docs.astral.sh/uv/" target="_blank" rel="noopener">uv</a> (<code>curl -LsSf https://astral.sh/uv/install.sh | sh</code>). No account needed for the free tier.</p>
+  <div class="tabs" role="tablist">
+    <button class="tab-btn on" data-tab="desktop" type="button">Claude Desktop</button>
+    <button class="tab-btn" data-tab="code" type="button">Claude Code</button>
+    <button class="tab-btn" data-tab="mobile" type="button">Claude mobile</button>
+    <button class="tab-btn" data-tab="chatgpt" type="button">ChatGPT</button>
+    <button class="tab-btn" data-tab="cursor" type="button">Cursor</button>
+  </div>
+
+  <div class="tab-panel" data-panel="desktop">
+    <p class="step">1. Open your config: <code>~/Library/Application Support/Claude/claude_desktop_config.json</code> (macOS) or <code>%APPDATA%\Claude\claude_desktop_config.json</code> (Windows).</p>
+    <p class="step">2. Paste this in (create the file if needed):</p>
+    <div class="code-block">
+<pre id="cfg-desktop">{
   "mcpServers": {
     "hvac": {
       "command": "uvx",
-      "args": [
-        "--from",
-        "git+https://github.com/NightFast-app/hvac-mcp",
-        "hvac-mcp"
-      ]
+      "args": ["--from", "git+https://github.com/NightFast-app/hvac-mcp", "hvac-mcp"]
     }
   }
 }</pre>
-  <p style="font-size:14px;color:var(--muted)">Installs direct from GitHub. PyPI release coming soon — once live, you'll only need <code>"args": ["hvac-mcp"]</code>.</p>
-  <p>Full client configs (Claude Code, Claude app, ChatGPT, Cursor) in <a href="https://github.com/NightFast-app/hvac-mcp/blob/main/docs/CONNECTING.md">docs/CONNECTING.md</a>.</p>
+      <button class="copy" data-target="cfg-desktop" type="button">Copy</button>
+    </div>
+    <p class="step">3. Restart Claude Desktop. Click the 🔌 icon in chat — you'll see seven <code>hvac_*</code> tools.</p>
+  </div>
+
+  <div class="tab-panel hidden" data-panel="code">
+    <p class="step">One command in your terminal:</p>
+    <div class="code-block">
+<pre id="cfg-code">claude mcp add hvac -- uvx --from git+https://github.com/NightFast-app/hvac-mcp hvac-mcp</pre>
+      <button class="copy" data-target="cfg-code" type="button">Copy</button>
+    </div>
+    <p class="step">Verify: <code>claude mcp list</code></p>
+  </div>
+
+  <div class="tab-panel hidden" data-panel="mobile">
+    <p class="step">The Claude mobile app uses hosted connectors — no install on your phone.</p>
+    <p class="step">1. Buy a paid tier below — you'll get a connector URL by email.</p>
+    <p class="step">2. In the Claude app: Settings → Connectors → Add custom connector.</p>
+    <p class="step">3. Paste the URL. Add header <code>Authorization: Bearer &lt;your key&gt;</code>. Save.</p>
+    <p class="step">The HVAC tools are then available in every chat on that phone.</p>
+  </div>
+
+  <div class="tab-panel hidden" data-panel="chatgpt">
+    <p class="step">ChatGPT Plus/Team/Enterprise supports custom MCP connectors on web + desktop.</p>
+    <p class="step">1. Buy a paid tier below.</p>
+    <p class="step">2. ChatGPT → Settings → Connectors → + Create.</p>
+    <p class="step">3. URL: your connector URL from the purchase email.</p>
+    <p class="step">4. Authentication: Bearer token — paste your license key.</p>
+  </div>
+
+  <div class="tab-panel hidden" data-panel="cursor">
+    <p class="step">Edit <code>~/.cursor/mcp.json</code>:</p>
+    <div class="code-block">
+<pre id="cfg-cursor">{
+  "mcpServers": {
+    "hvac": {
+      "command": "uvx",
+      "args": ["--from", "git+https://github.com/NightFast-app/hvac-mcp", "hvac-mcp"]
+    }
+  }
+}</pre>
+      <button class="copy" data-target="cfg-cursor" type="button">Copy</button>
+    </div>
+    <p class="step">Restart Cursor. MCP panel should show the tools loaded.</p>
+  </div>
+
+  <p class="hint" style="margin-top:14px">All 5 client configs with screenshots and troubleshooting: <a href="https://github.com/NightFast-app/hvac-mcp/blob/main/docs/CONNECTING.md" target="_blank" rel="noopener">docs/CONNECTING.md</a>.</p>
 </section>
 
+<!-- PRICING -->
 <section id="pricing">
   <h2>Pricing</h2>
+  <p class="section-sub">Free forever if you self-host. Paid tiers are just hosting + premium tools. Cancel anytime in one click. <strong>14-day refund, no questions asked.</strong></p>
   <div class="pricing">
     <div class="tier">
       <h3>Free</h3>
@@ -106,15 +384,16 @@
       <p>Self-hosted open source.</p>
       <ul>
         <li>All 7 field-diagnostic tools</li>
-        <li>Full Florida code amendments</li>
+        <li>Florida code amendments</li>
+        <li>Zero data collection</li>
         <li>Runs on your laptop</li>
       </ul>
-      <a class="btn" href="https://github.com/NightFast-app/hvac-mcp">Get on GitHub</a>
+      <a class="btn" href="https://github.com/NightFast-app/hvac-mcp" target="_blank" rel="noopener">Get on GitHub</a>
     </div>
     <div class="tier highlight">
       <h3>Starter</h3>
       <div class="price">$29<span style="font-size:14px;color:var(--muted)">/mo</span></div>
-      <p>Hosted — no install. For your phone.</p>
+      <p>Hosted — works on your phone.</p>
       <ul>
         <li>Everything in Free</li>
         <li>Invoice &amp; estimate drafting</li>
@@ -146,27 +425,108 @@
       <a class="btn" href="#" data-stripe="lifetime">Buy Lifetime</a>
     </div>
   </div>
-  <p style="margin-top:14px;color:var(--muted);font-size:14px">After purchase you'll get a connector URL + license key by email. Paste them into your MCP client. No account, no dashboard — just tools.</p>
 </section>
 
+<!-- FAQ -->
+<section id="faq">
+  <h2>FAQ</h2>
+  <p class="section-sub">The real questions, not the ones I wish you'd ask.</p>
+
+  <details>
+    <summary>Is this a subscription trap?</summary>
+    <p>No. Cancellation is one click in Stripe's customer portal — no call, no email, no retention hell. The moment you cancel, your license deactivates on the next billing cycle. 14-day full refund, no questions. I hate subscription traps too.</p>
+  </details>
+
+  <details>
+    <summary>Does this replace my license or my engineer?</summary>
+    <p>No — and anyone who tells you their software does is lying. Outputs are <strong>informational only</strong>. Every code citation includes a "verify with your AHJ" line. Every sizing result tells you what it didn't consider. This is a reference that runs fast on your phone — not a substitute for your ticket, your license, or an engineer when the job needs one.</p>
+  </details>
+
+  <details>
+    <summary>What data do you collect?</summary>
+    <p>Stripe holds your payment info — I don't see your card. The server stores your Stripe customer ID and a random license key, and that's it. No emails, no job data, no phone numbers, no location. Every tool call on the free tier runs 100% offline from bundled JSON — no network. Source is on GitHub, grep it yourself.</p>
+  </details>
+
+  <details>
+    <summary>I've never installed anything with <code>uvx</code>. How hard is this?</summary>
+    <p>It's one command in Terminal: <code>curl -LsSf https://astral.sh/uv/install.sh | sh</code>. Takes 15 seconds. Then you paste a 10-line config block into one file, restart your chatbot, and you're done. If that sounds intimidating, buy a hosted tier — there's nothing to install on your phone, just paste a URL into the Claude app's connector settings.</p>
+  </details>
+
+  <details>
+    <summary>Does this work offline in the truck?</summary>
+    <p>The free tools do — they're bundled reference data, no network required. Claude itself needs internet to think. Realistic middle ground: download the data once, phone has LTE on most calls, you're fine.</p>
+  </details>
+
+  <details>
+    <summary>What if the data's wrong?</summary>
+    <p>Open an issue on GitHub with the correction + a source (manufacturer PDF, IRC section, whatever). I fix it, redeploy, everyone gets it. Your correction goes into <code>tasks/lessons.md</code> so it doesn't regress.</p>
+  </details>
+
+  <details>
+    <summary>Why not just use ChatGPT or Claude directly?</summary>
+    <p>LLMs are good at understanding messy field descriptions; they're unreliable at calc math and code citations. MCP puts the calc + citation behind a tool call — so the chatbot never invents a saturation pressure or an IRC section number. Same chatbot, honest answers.</p>
+  </details>
+
+  <details>
+    <summary>I'm a 2-tech shop. Do I need Pro?</summary>
+    <p>No, Starter is fine. Pro adds FL permit lookup + priority support — useful if you're doing 10+ permits a month or you need me to pick up the phone fast. Start on Starter, upgrade if you hit the ceiling.</p>
+  </details>
+
+  <details>
+    <summary>Lifetime — is the limit real?</summary>
+    <p>Yes. 50 customers, one-time $399. I'd rather have 50 early believers than juice a subscription number. When it's gone, it's gone. After that, the tiers are monthly only.</p>
+  </details>
+</section>
+
+<!-- BIO -->
 <section>
   <h2>Built by someone who actually does this work</h2>
-  <p>Kollin Croyle — EPA 608 Universal, 8+ years in HVAC and plumbing in Florida. Every tool in here solves a problem I've hit in the field. If it doesn't work on a real service call, it doesn't ship.</p>
+  <p>Kollin Croyle — EPA 608 Universal, 8+ years in HVAC and plumbing in Florida. Every tool in here solves a problem I've hit on a real service call. If it doesn't work in the field, it doesn't ship. Found a bug? <a href="mailto:Kollinkiller4@ymail.com?subject=hvac-mcp%20feedback">Email me</a> — I read every one.</p>
 </section>
 
 <footer>
-  <p>MIT license. <a href="https://github.com/NightFast-app/hvac-mcp">Source</a> · <a href="mailto:Kollinkiller4@ymail.com">Contact</a></p>
-  <p style="opacity:0.7;">Code and sizing outputs are informational only. Always verify with the Authority Having Jurisdiction (AHJ). This is a tool, not a substitute for a license or an engineer.</p>
+  <div class="footer-grid">
+    <div class="footer-col">
+      <h4>hvac-mcp</h4>
+      <p>Model Context Protocol server for HVAC and plumbing techs. Open core, MIT licensed.</p>
+      <p><a href="https://github.com/NightFast-app/hvac-mcp" target="_blank" rel="noopener">Source on GitHub</a></p>
+    </div>
+    <div class="footer-col">
+      <h4>Product</h4>
+      <a href="#try">Live demo</a>
+      <a href="#install">Install</a>
+      <a href="#pricing">Pricing</a>
+      <a href="#faq">FAQ</a>
+    </div>
+    <div class="footer-col">
+      <h4>Legal</h4>
+      <a href="#privacy">Privacy</a>
+      <a href="#refund">Refund policy</a>
+      <a href="#terms">Terms</a>
+    </div>
+    <div class="footer-col">
+      <h4>Contact</h4>
+      <a href="mailto:Kollinkiller4@ymail.com">Email Kollin</a>
+      <a href="https://github.com/NightFast-app/hvac-mcp/issues" target="_blank" rel="noopener">Bug reports</a>
+    </div>
+  </div>
+
+  <p class="disclaimer" id="privacy"><strong>Privacy.</strong> hvac-mcp stores your Stripe customer ID and a random license key on its server (nothing else). Stripe holds your payment info — we don't. Free-tier tools make zero external network calls. No PII, no analytics, no tracking cookies, no third-party scripts. Source code is public: you can grep it to verify.</p>
+
+  <p class="disclaimer" id="refund"><strong>Refund policy.</strong> 14 days, no questions asked. Reply to your receipt or email <a href="mailto:Kollinkiller4@ymail.com?subject=hvac-mcp%20refund">Kollin</a> — refund hits your card in 5-10 business days. Your license deactivates on the next billing cycle (or immediately for one-time Lifetime refunds). Subscription cancellations after 14 days stop future charges but don't refund the current cycle.</p>
+
+  <p class="disclaimer" id="terms"><strong>Terms &amp; disclaimer.</strong> Code and sizing outputs are informational only. Always verify with the Authority Having Jurisdiction (AHJ) before acting on them for permit, installation, or inspection decisions. hvac-mcp is a tool, not a substitute for your license, your engineer, or your common sense. No warranties; see LICENSE (MIT) for the legal version.</p>
+
+  <p style="margin-top:18px;">© 2026 Kollin Croyle. Built in Florida.</p>
 </footer>
 
 </div>
 
 <script>
-// Stripe checkout links — LIVE MODE.
-// These charge real cards for real money. Created 2026-04-17 via
-// scripts/create_stripe_products.sh --live and documented in
-// docs/STRIPE_LINKS.md. IDs + Payment Link IDs are also in
-// docs/stripe-links.live.json.
+// ──────────────────────────────────────────────────────────────────────────
+// Stripe Payment Links — LIVE MODE (real money).
+// Source of truth: docs/stripe-links.live.json in the repo.
+// ──────────────────────────────────────────────────────────────────────────
 const STRIPE_LINKS = {
   starter: 'https://buy.stripe.com/4gMeVd10BcSd4x57Q0gQE03',
   pro: 'https://buy.stripe.com/00wfZhbFf19ve7F0nygQE04',
@@ -175,6 +535,215 @@ const STRIPE_LINKS = {
 document.querySelectorAll('a[data-stripe]').forEach(a => {
   const url = STRIPE_LINKS[a.dataset.stripe];
   if (url) a.href = url;
+});
+
+// ──────────────────────────────────────────────────────────────────────────
+// PT tables — exact mirror of src/hvac_mcp/data/pt_tables.json.
+// When that file changes, mirror the values here.
+// ──────────────────────────────────────────────────────────────────────────
+const PT = {
+  "R-410A": { glide: 0.3, pairs: [[-40,10.8],[-20,27.8],[0,48.2],[20,78.3],[30,94.9],[40,118.5],[50,142.2],[60,170.4],[70,201.5],[80,235.6],[90,273.1],[100,314.2],[110,359.4],[120,408.8],[130,462.9]] },
+  "R-32":   { glide: 0.0, pairs: [[-40,6.5],[0,41.3],[40,109.5],[80,219.7],[120,382.4]] },
+  "R-454B": { glide: 1.4, bubble: [[40,118.0],[80,233.0],[120,401.0]], dew: [[40,114.5],[80,226.5],[120,391.0]] },
+  "R-22":   { glide: 0.0, pairs: [[-40,0.5],[0,24.0],[40,68.5],[80,143.6],[120,260.0]] },
+  "R-134a": { glide: 0.0, pairs: [[-40,-7.2],[0,6.5],[40,35.0],[80,86.7],[120,171.1]] },
+};
+
+function interp(pairs, x, keyIdx) {
+  // Linear interpolation. pairs = [[temp, pressure], ...] sorted by temp.
+  const sorted = [...pairs].sort((a,b) => a[keyIdx] - b[keyIdx]);
+  const xs = sorted.map(p => p[keyIdx]);
+  const other = 1 - keyIdx;
+  if (x < xs[0] || x > xs[xs.length - 1]) return null;
+  for (let i = 0; i < sorted.length - 1; i++) {
+    if (x >= sorted[i][keyIdx] && x <= sorted[i+1][keyIdx]) {
+      const lo = sorted[i], hi = sorted[i+1];
+      if (hi[keyIdx] === lo[keyIdx]) return lo[other];
+      const frac = (x - lo[keyIdx]) / (hi[keyIdx] - lo[keyIdx]);
+      return lo[other] + frac * (hi[other] - lo[other]);
+    }
+  }
+  return null;
+}
+
+// Returns {bubble, dew, isBlend}. For azeotropes bubble === dew.
+function saturate(refName, value, mode) {
+  const r = PT[refName];
+  if (!r) return null;
+  const isBlend = !!r.bubble;
+  if (mode === 'P_TO_T') {
+    // pressure → temp (use pairs, key=1=pressure → return temp=0)
+    if (isBlend) {
+      const bubT = interp(r.bubble, value, 1);
+      const dewT = interp(r.dew, value, 1);
+      return { bubble: bubT, dew: dewT, isBlend: true, glide: r.glide };
+    }
+    const t = interp(r.pairs, value, 1);
+    return { bubble: t, dew: t, isBlend: false, glide: r.glide };
+  } else {
+    // temp → pressure (key=0=temp → return pressure=1)
+    if (isBlend) {
+      const bubP = interp(r.bubble, value, 0);
+      const dewP = interp(r.dew, value, 0);
+      return { bubble: bubP, dew: dewP, isBlend: true, glide: r.glide };
+    }
+    const p = interp(r.pairs, value, 0);
+    return { bubble: p, dew: p, isBlend: false, glide: r.glide };
+  }
+}
+
+// ──────────────────────────────────────────────────────────────────────────
+// Calculator UI
+// ──────────────────────────────────────────────────────────────────────────
+let mode = 'P_TO_T'; // or 'T_TO_P'
+
+function recalc() {
+  const ref = document.getElementById('ref').value;
+  const inputVal = parseFloat(document.getElementById('input').value);
+  const suctionT = parseFloat(document.getElementById('suction-t').value);
+  const liquidT = parseFloat(document.getElementById('liquid-t').value);
+
+  const outA = document.getElementById('out-a');
+  const outB = document.getElementById('out-b');
+  const outLabelA = document.getElementById('out-label-a');
+  const outLabelB = document.getElementById('out-label-b');
+
+  if (isNaN(inputVal)) {
+    outA.textContent = '—'; outB.textContent = '—';
+    return;
+  }
+
+  const sat = saturate(ref, inputVal, mode);
+  if (!sat || sat.bubble === null) {
+    outA.textContent = 'out of range';
+    outB.textContent = '—';
+    document.getElementById('sh-val').textContent = '—';
+    document.getElementById('sc-val').textContent = '—';
+    document.getElementById('diag-text').textContent = '';
+    return;
+  }
+
+  if (mode === 'P_TO_T') {
+    // Show dew temp as primary (what a tech reads off their gauge for suction calc)
+    outLabelA.textContent = sat.isBlend ? 'Dew temp (superheat ref)' : 'Saturation temp';
+    outA.textContent = sat.dew.toFixed(1) + ' °F';
+    if (sat.isBlend) {
+      outLabelB.textContent = 'Bubble temp (subcool ref)';
+      outB.textContent = sat.bubble.toFixed(1) + ' °F';
+    } else {
+      outLabelB.textContent = 'Glide';
+      outB.textContent = sat.glide <= 0.1 ? 'near-azeotropic' : sat.glide.toFixed(1) + ' °F';
+    }
+  } else {
+    outLabelA.textContent = sat.isBlend ? 'Dew pressure' : 'Saturation pressure';
+    outA.textContent = sat.dew.toFixed(1) + ' psig';
+    if (sat.isBlend) {
+      outLabelB.textContent = 'Bubble pressure';
+      outB.textContent = sat.bubble.toFixed(1) + ' psig';
+    } else {
+      outLabelB.textContent = 'Glide';
+      outB.textContent = sat.glide <= 0.1 ? 'near-azeotropic' : sat.glide.toFixed(1) + ' °F';
+    }
+  }
+
+  // Superheat / subcool — only meaningful in P_TO_T mode where inputVal is the pressure
+  const shEl = document.getElementById('sh-val');
+  const scEl = document.getElementById('sc-val');
+  const shHint = document.getElementById('sh-hint');
+  const scHint = document.getElementById('sc-hint');
+  const diagBox = document.getElementById('diag-text');
+
+  if (mode === 'P_TO_T' && !isNaN(suctionT)) {
+    const sh = suctionT - sat.dew;
+    shEl.textContent = sh.toFixed(1) + ' °F';
+    shHint.textContent = `${suctionT}°F line − ${sat.dew.toFixed(1)}°F dew`;
+  } else {
+    shEl.textContent = '—';
+    shHint.textContent = mode === 'T_TO_P' ? 'switch to Pressure → Temp' : 'add suction line temp';
+  }
+
+  if (mode === 'P_TO_T' && !isNaN(liquidT)) {
+    // Subcool needs the LIQUID pressure, but the input is the suction pressure in this widget.
+    // Be honest about that — show a helpful note rather than a wrong number.
+    scEl.textContent = '—';
+    scHint.textContent = 'enter liquid pressure above (switch via gauge reading) — or use Claude to pass both at once';
+  } else {
+    scEl.textContent = '—';
+    scHint.textContent = '';
+  }
+
+  // Diagnosis (superheat only here — simplified from hvac_refrigerant_charge_check)
+  if (mode === 'P_TO_T' && !isNaN(suctionT)) {
+    const sh = suctionT - sat.dew;
+    if (sh < 0) {
+      diagBox.textContent = '⚠ Liquid floodback risk — line temp is BELOW saturation. Check gauge calibration or probe placement.';
+      diagBox.className = 'diag bad';
+    } else if (sh > 25) {
+      diagBox.textContent = '⚠ Very high superheat — likely undercharged, or TXV starved (filter drier / TXV bulb).';
+      diagBox.className = 'diag undercharged';
+    } else if (sh >= 8 && sh <= 15) {
+      diagBox.textContent = '✓ Superheat in typical range. Pair with liquid-side subcool for a full charge diagnosis.';
+      diagBox.className = 'diag in_spec';
+    } else {
+      diagBox.textContent = 'Superheat is outside typical 8-15°F band. Normal if piston at specific indoor/outdoor conditions — check OEM chart.';
+      diagBox.className = 'diag';
+    }
+  } else {
+    diagBox.textContent = '';
+    diagBox.className = 'diag';
+  }
+}
+
+document.getElementById('ref').addEventListener('change', recalc);
+document.getElementById('input').addEventListener('input', recalc);
+document.getElementById('suction-t').addEventListener('input', recalc);
+document.getElementById('liquid-t').addEventListener('input', recalc);
+
+document.getElementById('modeP').addEventListener('click', () => {
+  mode = 'P_TO_T';
+  document.getElementById('modeP').classList.add('on');
+  document.getElementById('modeT').classList.remove('on');
+  document.getElementById('input-label').textContent = 'Pressure (psig)';
+  document.getElementById('input').value = '118.5';
+  recalc();
+});
+document.getElementById('modeT').addEventListener('click', () => {
+  mode = 'T_TO_P';
+  document.getElementById('modeT').classList.add('on');
+  document.getElementById('modeP').classList.remove('on');
+  document.getElementById('input-label').textContent = 'Temperature (°F)';
+  document.getElementById('input').value = '40';
+  recalc();
+});
+
+recalc();
+
+// ──────────────────────────────────────────────────────────────────────────
+// Install-tab switcher
+// ──────────────────────────────────────────────────────────────────────────
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const target = btn.dataset.tab;
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('on', b === btn));
+    document.querySelectorAll('[data-panel]').forEach(p => {
+      p.classList.toggle('hidden', p.dataset.panel !== target);
+    });
+  });
+});
+
+// ──────────────────────────────────────────────────────────────────────────
+// Copy buttons
+// ──────────────────────────────────────────────────────────────────────────
+document.querySelectorAll('.copy').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const el = document.getElementById(btn.dataset.target);
+    if (!el) return;
+    navigator.clipboard.writeText(el.textContent).then(() => {
+      btn.textContent = 'Copied';
+      btn.classList.add('copied');
+      setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 1800);
+    });
+  });
 });
 </script>
 </body>
