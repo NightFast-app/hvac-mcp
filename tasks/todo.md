@@ -1,12 +1,12 @@
 # HVAC MCP — Build Plan
 
-## Phase 0 — Repo bootstrap (Day 1, ~2 hrs)
-- [ ] `uv init` the project, confirm `pyproject.toml` deps resolve
-- [ ] Add `fastmcp`, `pydantic>=2`, `httpx`, `pytest`, `pytest-asyncio`, `ruff` to deps
-- [ ] `.env.example` with `HVAC_MCP_LICENSE_KEY=`, `STRIPE_SECRET=`, `LOG_LEVEL=INFO`
-- [ ] Empty server.py that boots with `FastMCP("hvac_mcp")` and prints tool count on `--help`
-- [ ] Commit: "chore: initial scaffold"
-- [ ] Push to github.com/cybertec44/hvac-mcp, public, MIT
+## Phase 0 — Repo bootstrap (Day 1, ~2 hrs) ✅
+- [x] `uv init` the project, confirm `pyproject.toml` deps resolve
+- [x] Add `fastmcp`, `pydantic>=2`, `httpx`, `pytest`, `pytest-asyncio`, `ruff` to deps
+- [x] `.env.example` with `HVAC_MCP_LICENSE_KEY=`, `STRIPE_SECRET=`, `LOG_LEVEL=INFO`
+- [x] server.py boots with `FastMCP("hvac_mcp")` — supports stdio + streamable-http
+- [x] Committed: "chore: initial v1 scaffold + all 7 free-tier tools"
+- [x] Pushed to https://github.com/NightFast-app/hvac-mcp, public, MIT (tagged v0.1.0)
 
 ## Phase 1 — Free-tier tools (Day 1–3)
 ### Tool 1: hvac_refrigerant_pt_lookup ✅

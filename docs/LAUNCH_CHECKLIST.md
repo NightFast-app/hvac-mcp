@@ -28,9 +28,9 @@ steps that remain before a public launch.
       code, sizing.
 
 ### 2. Publish to GitHub (15 min)
-- [ ] Create repo `cybertec44/hvac-mcp`, public, MIT license.
+- [ ] Create repo `NightFast-app/hvac-mcp`, public, MIT license.
 - [ ] `git init && git add -A && git commit -m "chore: v1 free tier shipping"`.
-- [ ] `gh repo create cybertec44/hvac-mcp --public --source . --push`.
+- [ ] `gh repo create NightFast-app/hvac-mcp --public --source . --push`.
 - [ ] Confirm CI turns green on the first push.
 - [ ] Tag release: `git tag v0.1.0 && git push --tags`.
 

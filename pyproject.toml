@@ -37,8 +37,8 @@ hvac-mcp = "hvac_mcp.server:main"
 
 [project.urls]
 Homepage = "https://hvac-mcp.nightfast.tech"
-Repository = "https://github.com/cybertec44/hvac-mcp"
-Issues = "https://github.com/cybertec44/hvac-mcp/issues"
+Repository = "https://github.com/NightFast-app/hvac-mcp"
+Issues = "https://github.com/NightFast-app/hvac-mcp/issues"
 
 [build-system]
 requires = ["hatchling"]
