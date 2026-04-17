@@ -162,12 +162,14 @@
 </div>
 
 <script>
-// Stripe checkout links — replace these after creating products in Stripe dashboard.
-// Pattern: https://buy.stripe.com/<id> for each tier.
+// Stripe checkout links.
+// NOTE: these are TEST-mode links (URL contains "/test_"). Replace with
+// live-mode Payment Links before taking real money — see docs/STRIPE_LINKS.md.
+// To test: use card 4242 4242 4242 4242, any future expiry, any CVC, any ZIP.
 const STRIPE_LINKS = {
-  starter: 'https://buy.stripe.com/REPLACE_ME_STARTER',
-  pro: 'https://buy.stripe.com/REPLACE_ME_PRO',
-  lifetime: 'https://buy.stripe.com/REPLACE_ME_LIFETIME',
+  starter: 'https://buy.stripe.com/test_fZu4gzaBb9G10gP4DOgQE00',
+  pro: 'https://buy.stripe.com/test_7sYaEX38J3hD6FdfisgQE01',
+  lifetime: 'https://buy.stripe.com/test_5kQ3cvfVv19v6FdgmwgQE02',
 };
 document.querySelectorAll('a[data-stripe]').forEach(a => {
   const url = STRIPE_LINKS[a.dataset.stripe];
