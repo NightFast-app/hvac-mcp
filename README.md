@@ -4,8 +4,8 @@
 
 Turn Claude, ChatGPT, Cursor, or any MCP-compatible client into a field-service-aware assistant. Free, open-source, MIT.
 
-[![PyPI](https://img.shields.io/pypi/v/hvac-mcp.svg)](https://pypi.org/project/hvac-mcp/)
-[![Python](https://img.shields.io/pypi/pyversions/hvac-mcp.svg)](https://pypi.org/project/hvac-mcp/)
+[![CI](https://github.com/NightFast-app/hvac-mcp/actions/workflows/ci.yml/badge.svg)](https://github.com/NightFast-app/hvac-mcp/actions/workflows/ci.yml)
+[![Python](https://img.shields.io/badge/python-3.11%20%7C%203.12-blue.svg)](https://www.python.org/)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
 ## What this is
@@ -16,16 +16,23 @@ Built and maintained by Kollin Croyle (EPA 608 Universal, 8+ years in the field)
 
 ## Quick start
 
-```bash
-# Install from PyPI
-uvx hvac-mcp
+Install directly from GitHub with [uv](https://docs.astral.sh/uv/) (recommended — no PyPI account or pip needed):
 
-# Or pip
-pip install hvac-mcp
-hvac-mcp
+```bash
+uvx --from git+https://github.com/NightFast-app/hvac-mcp hvac-mcp --help
 ```
 
-Point your MCP client at it — see [docs/CONNECTING.md](docs/CONNECTING.md) for Claude Desktop, Claude Code, Claude app, ChatGPT, and Cursor configs.
+Or clone and run with `uv`:
+
+```bash
+git clone https://github.com/NightFast-app/hvac-mcp.git
+cd hvac-mcp
+uv run python -m hvac_mcp.server --help
+```
+
+PyPI release coming soon — once it's up, `uvx hvac-mcp` will work with no URL.
+
+Point your MCP client at it — see [docs/CONNECTING.md](docs/CONNECTING.md) for Claude Desktop, Claude Code, the Claude mobile app, ChatGPT, and Cursor configs.
 
 ## Free tier (open source)
 

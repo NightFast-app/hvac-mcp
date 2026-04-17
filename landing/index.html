@@ -83,9 +83,17 @@
   <p>Have <a href="https://docs.astral.sh/uv/">uv</a> installed? Add this to your Claude Desktop config and restart:</p>
   <pre>{
   "mcpServers": {
-    "hvac": { "command": "uvx", "args": ["hvac-mcp"] }
+    "hvac": {
+      "command": "uvx",
+      "args": [
+        "--from",
+        "git+https://github.com/NightFast-app/hvac-mcp",
+        "hvac-mcp"
+      ]
+    }
   }
 }</pre>
+  <p style="font-size:14px;color:var(--muted)">Installs direct from GitHub. PyPI release coming soon — once live, you'll only need <code>"args": ["hvac-mcp"]</code>.</p>
   <p>Full client configs (Claude Code, Claude app, ChatGPT, Cursor) in <a href="https://github.com/NightFast-app/hvac-mcp/blob/main/docs/CONNECTING.md">docs/CONNECTING.md</a>.</p>
 </section>
 
