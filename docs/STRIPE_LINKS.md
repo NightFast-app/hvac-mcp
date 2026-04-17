@@ -4,7 +4,21 @@ Source of truth for what's in Stripe.
 Test links land on `buy.stripe.com/test_*`; live links land on `buy.stripe.com/*`
 (no `test_` segment).
 
-## Test mode (currently wired into landing/index.html)
+## Live mode (wired into landing/index.html 2026-04-17)
+
+**These charge real cards for real money.** Created via
+`bash scripts/create_stripe_products.sh --live` with a scoped `rk_live_…` API
+key. JSON snapshot at `docs/stripe-links.live.json`.
+
+| Tier | Product ID | Price ID | Payment Link |
+|---|---|---|---|
+| Starter ($29/mo) | `prod_ULy09YgGzrf834` | `price_1TNG4lIbaOFvY0LH7NCH8ilF` | https://buy.stripe.com/4gMeVd10BcSd4x57Q0gQE03 |
+| Pro ($79/mo) | `prod_ULy0oudHc85SjF` | `price_1TNG4oIbaOFvY0LHKlnqUNAo` | https://buy.stripe.com/00wfZhbFf19ve7F0nygQE04 |
+| Lifetime ($399 one-time) | `prod_ULy0WtMXk8J5aX` | `price_1TNG4sIbaOFvY0LHPBONtxu5` | https://buy.stripe.com/dRmbJ18t3bO90gPb2cgQE05 |
+
+**Live webhook endpoint**: pointed at `https://hvac-mcp.fly.dev/stripe/webhook`, subscribed to the same 5 events as test mode. Its `whsec_…` is set on Fly alongside the test-mode secret (comma-separated in `STRIPE_WEBHOOK_SECRET`), so both modes verify simultaneously.
+
+## Test mode (retained for CLI triggers, `stripe trigger …`)
 
 Created 2026-04-17 via `stripe products create` → `stripe prices create` →
 `stripe payment_links create`.

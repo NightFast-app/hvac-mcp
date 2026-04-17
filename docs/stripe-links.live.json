@@ -1,0 +1,7 @@
+{
+  "mode": "live",
+  "created_at": "2026-04-17T17:21:15Z",
+  "starter":  { "product": "prod_ULy09YgGzrf834",  "price": "price_1TNG4lIbaOFvY0LH7NCH8ilF",  "url": "https://buy.stripe.com/4gMeVd10BcSd4x57Q0gQE03" },
+  "pro":      { "product": "prod_ULy0oudHc85SjF",      "price": "price_1TNG4oIbaOFvY0LHKlnqUNAo",      "url": "https://buy.stripe.com/00wfZhbFf19ve7F0nygQE04" },
+  "lifetime": { "product": "prod_ULy0WtMXk8J5aX", "price": "price_1TNG4sIbaOFvY0LHPBONtxu5", "url": "https://buy.stripe.com/dRmbJ18t3bO90gPb2cgQE05" }
+}

@@ -36,7 +36,7 @@ j() { python3 -c "import sys,json;d=json.load(sys.stdin);print(d.get('$1',''))";
 # Find a product by name in metadata[tier]; returns id or empty string.
 find_product_by_tier() {
   local tier=$1
-  stripe $LIVE_FLAG products list --limit 100 2>/dev/null \
+  stripe products list $LIVE_FLAG --limit 100 2>/dev/null \
     | python3 -c "
 import sys, json
 data = json.load(sys.stdin).get('data', [])
@@ -48,7 +48,7 @@ for p in data:
 
 find_active_price_for_product() {
   local product=$1
-  stripe $LIVE_FLAG prices list --product="$product" --active=true --limit 10 2>/dev/null \
+  stripe prices list $LIVE_FLAG --product="$product" --active=true --limit 10 2>/dev/null \
     | python3 -c "
 import sys, json
 data = json.load(sys.stdin).get('data', [])
@@ -58,7 +58,7 @@ if data: print(data[0]['id'])
 
 find_link_for_price() {
   local price=$1
-  stripe $LIVE_FLAG payment_links list --limit 100 2>/dev/null \
+  stripe payment_links list $LIVE_FLAG --limit 100 2>/dev/null \
     | python3 -c "
 import sys, json, os
 price = '$price'
@@ -79,7 +79,7 @@ ensure_product() {
     return
   fi
   local id
-  id=$(stripe $LIVE_FLAG products create \
+  id=$(stripe products create $LIVE_FLAG \
     --name="$name" \
     --description="$description" \
     -d "metadata[tier]=$tier" | j id)
@@ -98,11 +98,11 @@ ensure_price() {
   fi
   local id
   if [[ "$recurring" == "month" ]]; then
-    id=$(stripe $LIVE_FLAG prices create \
+    id=$(stripe prices create $LIVE_FLAG \
       --product="$product" --unit-amount="$amount" --currency=usd \
       -d "recurring[interval]=month" | j id)
   else
-    id=$(stripe $LIVE_FLAG prices create \
+    id=$(stripe prices create $LIVE_FLAG \
       --product="$product" --unit-amount="$amount" --currency=usd | j id)
   fi
   echo "  price (new):     $id" >&2
@@ -116,7 +116,7 @@ ensure_payment_link() {
   # metadata[tier] value (set at creation below).
   local existing_url existing_id
   read -r existing_id existing_url < <(
-    stripe $LIVE_FLAG payment_links list --limit 100 2>/dev/null \
+    stripe payment_links list $LIVE_FLAG --limit 100 2>/dev/null \
       | python3 -c "
 import sys, json
 tier = '$tier'
@@ -131,7 +131,7 @@ for p in json.load(sys.stdin).get('data', []):
     return
   fi
   local json
-  json=$(stripe $LIVE_FLAG payment_links create \
+  json=$(stripe payment_links create $LIVE_FLAG \
     -d "line_items[0][price]=$price" \
     -d "line_items[0][quantity]=1" \
     -d "after_completion[type]=redirect" \
