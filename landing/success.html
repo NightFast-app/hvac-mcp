@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Your hvac-mcp license key</title>
+<meta name="robots" content="noindex">
+<style>
+  :root {
+    --fg: #0b1220; --muted: #4a5a70; --bg: #f7f8fb; --card: #ffffff;
+    --accent: #0a67ff; --border: #dde3ec; --code-bg: #0b1220; --code-fg: #e6edf7;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: var(--bg); color: var(--fg);
+    font: 16px/1.55 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  .wrap { max-width: 680px; margin: 0 auto; padding: 32px 20px 48px; }
+  h1 { font-size: 30px; margin: 0 0 8px; letter-spacing: -0.01em; }
+  .lead { color: var(--muted); margin: 0 0 24px; font-size: 17px; }
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px;
+    padding: 20px; margin: 16px 0; }
+  .key-box { display: flex; gap: 8px; margin: 8px 0 12px; }
+  .key-box input { flex: 1; padding: 12px 14px; font: 15px/1 ui-monospace, Menlo, monospace;
+    border: 1px solid var(--border); border-radius: 8px; background: #f3f5f9; color: var(--fg); }
+  .key-box button { padding: 0 18px; border: 1px solid var(--accent); background: var(--accent);
+    color: #fff; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 14px; }
+  .key-box button.copied { background: #10a36e; border-color: #10a36e; }
+  pre { background: var(--code-bg); color: var(--code-fg); padding: 14px 16px; border-radius: 8px;
+    overflow-x: auto; font-size: 13px; line-height: 1.5; }
+  .pending { color: var(--muted); font-size: 14px; }
+  .error { background: #fff3f3; border: 1px solid #ffb4b4; color: #a12020;
+    padding: 14px 16px; border-radius: 8px; font-size: 14px; }
+  a { color: var(--accent); }
+  .small { font-size: 13px; color: var(--muted); }
+</style>
+</head>
+<body>
+<div class="wrap">
+<h1>Thanks — you're in 🔧</h1>
+<p class="lead">Your hvac-mcp license is ready. Paste the key below into your MCP client.</p>
+
+<div class="card" id="key-card">
+  <div id="pending" class="pending">Fetching your license key from Stripe…</div>
+  <div id="ready" style="display:none">
+    <div><strong>License key</strong> — tier: <span id="tier-name">…</span></div>
+    <div class="key-box">
+      <input id="key-input" readonly value="" onclick="this.select()">
+      <button id="copy-btn" type="button">Copy</button>
+    </div>
+    <div class="small">This key is also emailed to the address on your Stripe receipt. Keep it safe — it unlocks the premium tools.</div>
+  </div>
+  <div id="error-timeout" class="error" style="display:none">
+    Could not retrieve your license automatically. Check your email (the key is sent there too), or
+    <a href="mailto:Kollinkiller4@ymail.com?subject=hvac-mcp%20license%20issue">email Kollin</a>.
+  </div>
+  <div id="error-no-session" class="error" style="display:none">
+    No session_id in URL. If you just paid, please
+    <a href="mailto:Kollinkiller4@ymail.com?subject=hvac-mcp%20license%20lookup">email me</a>
+    your Stripe receipt.
+  </div>
+</div>
+
+<div class="card">
+  <strong>Claude Desktop setup</strong>
+  <p class="small" style="margin-top:6px">
+    macOS: <code>~/Library/Application Support/Claude/claude_desktop_config.json</code><br>
+    Windows: <code>%APPDATA%\Claude\claude_desktop_config.json</code>
+  </p>
+  <pre id="config-block">{
+  "mcpServers": {
+    "hvac": {
+      "command": "uvx",
+      "args": [
+        "--from",
+        "git+https://github.com/NightFast-app/hvac-mcp",
+        "hvac-mcp"
+      ],
+      "env": {
+        "HVAC_MCP_LICENSE_KEY": "YOUR_KEY_HERE"
+      }
+    }
+  }
+}</pre>
+  <p class="small">Restart Claude Desktop after saving. Then use the 🔌 icon in the chat to confirm tools loaded.</p>
+</div>
+
+<div class="card">
+  <strong>Using a different client?</strong>
+  <p class="small" style="margin-top:6px">Claude Code, Claude mobile app, ChatGPT custom connectors, Cursor — all configs in
+    <a href="https://github.com/NightFast-app/hvac-mcp/blob/main/docs/CONNECTING.md">docs/CONNECTING.md</a>.</p>
+</div>
+
+<p class="small">
+  Problem with your key? <a href="mailto:Kollinkiller4@ymail.com?subject=hvac-mcp%20license%20issue">Email me directly</a> and I'll sort it.
+</p>
+</div>
+
+<script>
+// Base URL of the hvac-mcp server. Override via ?api=https://your-host
+// when testing locally. Defaults to the production host.
+const API_BASE = new URLSearchParams(location.search).get('api')
+  || 'https://hvac-mcp.nightfast.tech';
+
+// Poll /license/lookup — webhook races checkout redirect, so the key may
+// take a few seconds to appear.
+async function fetchKey(sessionId) {
+  const pending = document.getElementById('pending');
+  const ready = document.getElementById('ready');
+  const errTimeout = document.getElementById('error-timeout');
+
+  const url = API_BASE + '/license/lookup?session_id=' + encodeURIComponent(sessionId);
+  const delays = [0, 1000, 2000, 3000, 5000, 8000, 12000]; // exponential-ish
+  for (const d of delays) {
+    if (d) await new Promise(r => setTimeout(r, d));
+    try {
+      const r = await fetch(url);
+      if (r.ok) {
+        const data = await r.json();
+        document.getElementById('key-input').value = data.key;
+        document.getElementById('tier-name').textContent = data.tier;
+        // Safe token replacement (textContent, no HTML eval)
+        const cfg = document.getElementById('config-block');
+        cfg.textContent = cfg.textContent.replace('YOUR_KEY_HERE', data.key);
+        pending.style.display = 'none';
+        ready.style.display = '';
+        return;
+      }
+      if (r.status !== 404) throw new Error('HTTP ' + r.status);
+      // 404 = not found yet, keep polling
+    } catch (e) {
+      // Network error — try next delay
+    }
+  }
+  pending.style.display = 'none';
+  errTimeout.style.display = '';
+}
+
+document.getElementById('copy-btn').addEventListener('click', () => {
+  const input = document.getElementById('key-input');
+  navigator.clipboard.writeText(input.value);
+  const btn = document.getElementById('copy-btn');
+  btn.textContent = 'Copied';
+  btn.classList.add('copied');
+  setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+});
+
+const sessionId = new URLSearchParams(location.search).get('session_id');
+if (sessionId) {
+  fetchKey(sessionId);
+} else {
+  document.getElementById('pending').style.display = 'none';
+  document.getElementById('error-no-session').style.display = '';
+}
+</script>
+</body>
+</html>

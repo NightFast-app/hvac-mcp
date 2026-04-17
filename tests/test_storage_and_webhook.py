@@ -211,3 +211,97 @@ class TestWebhookHandler:
         assert resp.status_code == 200
         body = json.loads(resp.body)
         assert body["received"] is True
+
+
+# ─── Email delivery ─────────────────────────────────────────────────────────
+
+
+class TestEmailExtraction:
+    def test_pulls_from_customer_details(self) -> None:
+        assert (
+            webhook._extract_customer_email({"customer_details": {"email": "a@b.com"}}) == "a@b.com"
+        )
+
+    def test_pulls_from_customer_email_legacy(self) -> None:
+        assert webhook._extract_customer_email({"customer_email": "x@y.com"}) == "x@y.com"
+
+    def test_returns_none_when_missing(self) -> None:
+        assert webhook._extract_customer_email({}) is None
+
+    def test_returns_none_on_malformed(self) -> None:
+        assert webhook._extract_customer_email({"customer_email": "not-an-email"}) is None
+
+
+class TestEmailDelivery:
+    """Exercise the Resend delivery path without hitting the real API."""
+
+    @pytest.mark.asyncio
+    async def test_skipped_when_no_address(self, tmp_store) -> None:
+        lic = tmp_store.issue(tier="starter", stripe_customer_id="c", stripe_session_id="s")
+        assert await webhook._email_license_key(None, lic) == "skipped_no_address"
+
+    @pytest.mark.asyncio
+    async def test_skipped_when_no_api_key(self, tmp_store, monkeypatch) -> None:
+        monkeypatch.delenv("RESEND_API_KEY", raising=False)
+        lic = tmp_store.issue(tier="starter", stripe_customer_id="c", stripe_session_id="s")
+        assert await webhook._email_license_key("a@b.com", lic) == "skipped_no_provider"
+
+    @pytest.mark.asyncio
+    async def test_sent_on_success(self, tmp_store, monkeypatch) -> None:
+        monkeypatch.setenv("RESEND_API_KEY", "re_test_xxx")
+        lic = tmp_store.issue(tier="pro", stripe_customer_id="c", stripe_session_id="s")
+        captured: dict = {}
+
+        class _FakeResp:
+            status_code = 200
+            text = "ok"
+
+        class _FakeClient:
+            def __init__(self, **kw):
+                pass
+
+            async def __aenter__(self):
+                return self
+
+            async def __aexit__(self, *a):
+                return None
+
+            async def post(self, url, headers=None, json=None):
+                captured["url"] = url
+                captured["headers"] = headers
+                captured["json"] = json
+                return _FakeResp()
+
+        monkeypatch.setattr(webhook.httpx, "AsyncClient", _FakeClient)
+        status = await webhook._email_license_key("tech@example.com", lic)
+        assert status == "sent"
+        assert captured["url"] == "https://api.resend.com/emails"
+        assert captured["headers"]["Authorization"] == "Bearer re_test_xxx"
+        assert captured["json"]["to"] == ["tech@example.com"]
+        assert lic.key in captured["json"]["text"]
+        assert lic.key in captured["json"]["html"]
+
+    @pytest.mark.asyncio
+    async def test_failure_does_not_raise(self, tmp_store, monkeypatch) -> None:
+        monkeypatch.setenv("RESEND_API_KEY", "re_test_xxx")
+        lic = tmp_store.issue(tier="starter", stripe_customer_id="c", stripe_session_id="s")
+
+        class _FakeResp:
+            status_code = 422
+            text = '{"error":"invalid"}'
+
+        class _FakeClient:
+            def __init__(self, **kw):
+                pass
+
+            async def __aenter__(self):
+                return self
+
+            async def __aexit__(self, *a):
+                return None
+
+            async def post(self, *a, **kw):
+                return _FakeResp()
+
+        monkeypatch.setattr(webhook.httpx, "AsyncClient", _FakeClient)
+        assert await webhook._email_license_key("a@b.com", lic) == "failed_422"

@@ -9,12 +9,22 @@ dockerfilePath = "Dockerfile"
 startCommand = "hvac-mcp --http"
 restartPolicyType = "ON_FAILURE"
 restartPolicyMaxRetries = 10
-healthcheckPath = "/mcp"
+healthcheckPath = "/health"
 healthcheckTimeout = 30
 
+# Persistent volume for the SQLite license store. Without this, every redeploy
+# wipes every license. Create the volume in the Railway dashboard and mount it
+# at /data, then set HVAC_MCP_DATA_DIR=/data in the service env vars.
+[[deploy.volumes]]
+mountPath = "/data"
+name = "hvac-mcp-data"
+
 # Required env vars (set in Railway dashboard, not committed):
-#   STRIPE_SECRET       — server-side Stripe secret key
-#   STRIPE_WEBHOOK_SECRET — webhook endpoint signing secret
+#   STRIPE_WEBHOOK_SECRET — webhook endpoint signing secret (whsec_...)
+#   HVAC_MCP_DATA_DIR      — set to /data once the volume above is mounted
 # Optional:
-#   LOG_LEVEL           — defaults to INFO
-#   HVAC_MCP_HOST       — defaults to 0.0.0.0
+#   RESEND_API_KEY         — enables welcome email delivery
+#   HVAC_MCP_EMAIL_FROM    — "hvac-mcp <noreply@yourdomain>"
+#   STRIPE_SECRET          — only needed if code ever reads from Stripe
+#   LOG_LEVEL              — defaults to INFO
+#   HVAC_MCP_HOST          — defaults to 0.0.0.0

@@ -35,14 +35,19 @@ import logging
 import os
 from typing import Any
 
+import httpx
 from starlette.requests import Request
 from starlette.responses import JSONResponse
 
-from hvac_mcp.storage import LicenseStore, Tier
+from hvac_mcp.storage import License, LicenseStore, Tier
 
 logger = logging.getLogger(__name__)
 
 WEBHOOK_SECRET_ENV = "STRIPE_WEBHOOK_SECRET"
+RESEND_API_KEY_ENV = "RESEND_API_KEY"
+EMAIL_FROM_ENV = "HVAC_MCP_EMAIL_FROM"
+EMAIL_FROM_DEFAULT = "hvac-mcp <noreply@nightfast.tech>"
+LANDING_URL = "https://nightfast-app.github.io/hvac-mcp"
 
 # Map Stripe Product metadata[tier] values to our Tier literal.
 _VALID_TIERS: set[str] = {"starter", "pro", "lifetime"}
@@ -122,7 +127,6 @@ async def stripe_webhook(request: Request) -> JSONResponse:
             stripe_customer_id=str(customer_id),
             stripe_session_id=str(session_id),
         )
-        # In v1 we log the key; Phase 3.1 wires Resend/SMTP here.
         logger.info(
             "Issued license (tier=%s, customer=%s, session=%s, key=%s)",
             lic.tier,
@@ -130,7 +134,18 @@ async def stripe_webhook(request: Request) -> JSONResponse:
             lic.stripe_session_id,
             lic.key,
         )
-        return JSONResponse({"received": True, "issued": True, "key": lic.key})
+        # Best-effort email delivery — webhook ACK doesn't depend on it.
+        customer_email = _extract_customer_email(data_obj)
+        email_status = await _email_license_key(customer_email, lic)
+        return JSONResponse(
+            {
+                "received": True,
+                "issued": True,
+                "key": lic.key,
+                "email_sent": email_status == "sent",
+                "email_status": email_status,
+            }
+        )
 
     if event_type in ("customer.subscription.deleted", "customer.subscription.paused"):
         customer_id = data_obj.get("customer") or ""
@@ -155,6 +170,112 @@ async def stripe_webhook(request: Request) -> JSONResponse:
     # Unhandled events are fine — acknowledge so Stripe doesn't retry.
     logger.debug("Ignored webhook event: %s", event_type)
     return JSONResponse({"received": True, "ignored": event_type})
+
+
+def _extract_customer_email(session: dict[str, Any]) -> str | None:
+    """Pull the buyer's email out of a Checkout Session payload.
+
+    Stripe puts the email in different places depending on the flow:
+      - customer_details.email (always, for guest + saved customers)
+      - customer_email (legacy Checkout field)
+    """
+    details = session.get("customer_details") or {}
+    email = details.get("email") or session.get("customer_email")
+    return email if isinstance(email, str) and "@" in email else None
+
+
+async def _email_license_key(to_email: str | None, lic: License) -> str:
+    """Deliver the license key via Resend. Returns a status string for logging.
+
+    Design:
+    - No RESEND_API_KEY → "skipped_no_provider". Key still logged; customer
+      can fetch via /license/lookup. Prevents launch from blocking on email.
+    - No to_email on the session → "skipped_no_address".
+    - HTTP error → "failed_<status>". Webhook still returns 200 so Stripe
+      doesn't retry the event (license was already issued).
+    """
+    if not to_email:
+        logger.warning("No email on session — key %s must be fetched manually", lic.key)
+        return "skipped_no_address"
+
+    api_key = os.environ.get(RESEND_API_KEY_ENV, "").strip()
+    if not api_key:
+        logger.info("RESEND_API_KEY unset — email delivery skipped for %s", to_email)
+        return "skipped_no_provider"
+
+    subject = f"Your hvac-mcp {lic.tier.title()} license key"
+    html = _build_welcome_email_html(lic)
+    text = _build_welcome_email_text(lic)
+    from_addr = os.environ.get(EMAIL_FROM_ENV, EMAIL_FROM_DEFAULT)
+
+    try:
+        async with httpx.AsyncClient(timeout=10.0) as client:
+            r = await client.post(
+                "https://api.resend.com/emails",
+                headers={"Authorization": f"Bearer {api_key}"},
+                json={
+                    "from": from_addr,
+                    "to": [to_email],
+                    "subject": subject,
+                    "html": html,
+                    "text": text,
+                },
+            )
+    except httpx.HTTPError as e:
+        logger.error("Resend request failed for %s: %s", to_email, e)
+        return "failed_network"
+
+    if r.status_code >= 400:
+        logger.error("Resend rejected email to %s (%s): %s", to_email, r.status_code, r.text[:200])
+        return f"failed_{r.status_code}"
+    logger.info("Welcome email sent to %s (tier=%s)", to_email, lic.tier)
+    return "sent"
+
+
+def _build_welcome_email_text(lic: License) -> str:
+    return (
+        f"Welcome to hvac-mcp {lic.tier.title()}.\n\n"
+        f"Your license key:\n\n"
+        f"    {lic.key}\n\n"
+        "Setup (Claude Desktop — add to claude_desktop_config.json):\n\n"
+        "{\n"
+        '  "mcpServers": {\n'
+        '    "hvac": {\n'
+        '      "command": "uvx",\n'
+        '      "args": ["--from", "git+https://github.com/NightFast-app/hvac-mcp", "hvac-mcp"],\n'
+        f'      "env": {{"HVAC_MCP_LICENSE_KEY": "{lic.key}"}}\n'
+        "    }\n"
+        "  }\n"
+        "}\n\n"
+        f"All client configs: {LANDING_URL}/#setup\n\n"
+        "Any problems, reply to this email.\n"
+        "— Kollin\n"
+    )
+
+
+def _build_welcome_email_html(lic: License) -> str:
+    return f"""<!doctype html>
+<html><body style="font-family:-apple-system,Segoe UI,Roboto,sans-serif;max-width:560px;margin:24px auto;color:#0b1220">
+<h2 style="margin:0 0 8px">Welcome to hvac-mcp {lic.tier.title()}</h2>
+<p>Your license key:</p>
+<pre style="background:#0b1220;color:#e6edf7;padding:14px 18px;border-radius:8px;font-size:14px;overflow-x:auto">{lic.key}</pre>
+<p><strong>Quick setup</strong> — add this to your Claude Desktop config
+(<code>~/Library/Application Support/Claude/claude_desktop_config.json</code>
+on macOS, <code>%APPDATA%\\Claude\\claude_desktop_config.json</code> on Windows),
+then restart Claude Desktop:</p>
+<pre style="background:#0b1220;color:#e6edf7;padding:14px 18px;border-radius:8px;font-size:13px;overflow-x:auto">{{
+  "mcpServers": {{
+    "hvac": {{
+      "command": "uvx",
+      "args": ["--from", "git+https://github.com/NightFast-app/hvac-mcp", "hvac-mcp"],
+      "env": {{ "HVAC_MCP_LICENSE_KEY": "{lic.key}" }}
+    }}
+  }}
+}}</pre>
+<p>Using Claude Code / ChatGPT / Cursor? Full configs at
+<a href="{LANDING_URL}">{LANDING_URL.replace("https://", "")}</a>.</p>
+<p>Any issues, just reply — I'll see it.<br>— Kollin</p>
+</body></html>"""
 
 
 async def license_lookup(request: Request) -> JSONResponse:
