@@ -17,6 +17,7 @@ import os
 import sys
 
 from mcp.server.fastmcp import FastMCP
+from mcp.server.transport_security import TransportSecuritySettings
 
 from hvac_mcp import webhook
 from hvac_mcp.tools import (
@@ -108,6 +109,21 @@ def main() -> None:
         mcp.settings.port = args.port
         mcp.settings.stateless_http = True
         mcp.settings.json_response = True
+
+        # DNS rebinding protection: FastMCP defaults to localhost-only for the
+        # Host header. In a hosted deploy we need to whitelist our public
+        # hostnames. Comma-separated via HVAC_MCP_ALLOWED_HOSTS.
+        raw_allowed = os.environ.get("HVAC_MCP_ALLOWED_HOSTS", "").strip()
+        allowed_hosts = [h.strip() for h in raw_allowed.split(",") if h.strip()]
+        if allowed_hosts:
+            mcp.settings.transport_security = TransportSecuritySettings(
+                enable_dns_rebinding_protection=True,
+                allowed_hosts=allowed_hosts,
+                # Browser CORS isn't our threat model (MCP clients aren't
+                # browsers); leaving allowed_origins empty is fine.
+            )
+            logger.info("Allowed Host headers: %s", ", ".join(allowed_hosts))
+
         logger.info(
             "Starting HVAC MCP server on HTTP %s:%d (streamable-http, stateless)",
             args.host,
