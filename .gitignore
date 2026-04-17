@@ -37,8 +37,16 @@ env/
 *.swo
 .DS_Store
 
-# Claude Code / Cursor local state
-.claude/
+# Claude Code / Cursor local state.
+# We SHARE team config (hooks, skills, agents, settings.json) but keep
+# personal settings and cache out of the repo.
+.claude/*
+!.claude/settings.json
+!.claude/hooks/
+!.claude/skills/
+!.claude/agents/
+.claude/settings.local.json
+.claude/cache/
 .cursor/
 
 # macOS
