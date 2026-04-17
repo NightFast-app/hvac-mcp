@@ -78,22 +78,35 @@ def _tier_from_session(session: dict[str, Any]) -> Tier | None:
 def _verify_and_parse(request_body: bytes, sig_header: str | None) -> dict[str, Any]:
     """Verify the Stripe signature and return the parsed event dict.
 
-    Raises ValueError on any verification or parse failure — caller maps to 400.
+    `STRIPE_WEBHOOK_SECRET` may contain either a single secret or a comma-
+    separated list — we try each in order and succeed if any match. This
+    lets us run a single deployment that accepts events from BOTH the test-
+    mode webhook endpoint (for dev / CLI triggers) and the live-mode endpoint
+    (for real customer purchases) without juggling env vars on every flip.
+
+    Raises ValueError on verification failure, RuntimeError on config error.
     """
-    secret = os.environ.get(WEBHOOK_SECRET_ENV, "").strip()
-    if not secret:
+    raw = os.environ.get(WEBHOOK_SECRET_ENV, "").strip()
+    if not raw:
         raise RuntimeError(f"{WEBHOOK_SECRET_ENV} not configured")
+    secrets_list = [s.strip() for s in raw.split(",") if s.strip()]
+    if not secrets_list:
+        raise RuntimeError(f"{WEBHOOK_SECRET_ENV} contained no usable secrets")
     if not sig_header:
         raise ValueError("missing Stripe-Signature header")
 
     # Import lazily so import-time doesn't fail for stdio-only deployments.
     import stripe  # type: ignore[import-untyped]
 
-    try:
-        event = stripe.Webhook.construct_event(request_body, sig_header, secret)
-    except (stripe.error.SignatureVerificationError, ValueError) as e:  # type: ignore[attr-defined]
-        raise ValueError(f"signature verification failed: {e}") from e
-    return event if isinstance(event, dict) else event.to_dict()  # type: ignore[no-any-return]
+    last_error: Exception | None = None
+    for secret in secrets_list:
+        try:
+            event = stripe.Webhook.construct_event(request_body, sig_header, secret)
+            return event if isinstance(event, dict) else event.to_dict()  # type: ignore[no-any-return]
+        except (stripe.error.SignatureVerificationError, ValueError) as e:  # type: ignore[attr-defined]
+            last_error = e
+            continue
+    raise ValueError(f"signature verification failed against all {len(secrets_list)} secret(s): {last_error}")
 
 
 async def stripe_webhook(request: Request) -> JSONResponse:

@@ -140,6 +140,29 @@ class TestSignatureVerification:
         with pytest.raises(ValueError, match="signature verification failed"):
             webhook._verify_and_parse(b'{"id":"evt_x"}', "t=1,v1=definitely_bad")
 
+    def test_multi_secret_tries_each(self, monkeypatch) -> None:
+        """Comma-separated secrets are tried in order; first match wins."""
+        import hashlib
+        import hmac
+        import time
+
+        live_secret = "whsec_live_valid_secret_xyz"
+        test_secret = "whsec_test_other_secret_abc"
+        monkeypatch.setenv("STRIPE_WEBHOOK_SECRET", f"{test_secret},{live_secret}")
+        payload = b'{"id":"evt_multi","object":"event","type":"ping","data":{"object":{}}}'
+        ts = int(time.time())
+        # Sign with the LIVE secret — should succeed even though test is listed first
+        sig = hmac.new(
+            live_secret.encode(), f"{ts}.{payload.decode()}".encode(), hashlib.sha256
+        ).hexdigest()
+        event = webhook._verify_and_parse(payload, f"t={ts},v1={sig}")
+        assert event["id"] == "evt_multi"
+
+    def test_multi_secret_all_invalid_raises(self, monkeypatch) -> None:
+        monkeypatch.setenv("STRIPE_WEBHOOK_SECRET", "whsec_a,whsec_b,whsec_c")
+        with pytest.raises(ValueError, match="against all 3 secret"):
+            webhook._verify_and_parse(b'{"id":"evt_x"}', "t=1,v1=bogus")
+
 
 # ─── End-to-end webhook handler ─────────────────────────────────────────────
 
