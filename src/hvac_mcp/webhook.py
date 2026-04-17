@@ -278,28 +278,48 @@ then restart Claude Desktop:</p>
 </body></html>"""
 
 
+# CORS on /license/lookup only. The success page lives on a different origin
+# than the API (Pages vs. Fly / nightfast.tech), so the browser enforces CORS.
+# Stripe-signed webhook POSTs aren't cross-origin (Stripe server → our server,
+# no browser involved), so /stripe/webhook doesn't need these headers.
+_CORS_HEADERS = {
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Methods": "GET, OPTIONS",
+    "Access-Control-Allow-Headers": "Content-Type",
+    "Access-Control-Max-Age": "86400",
+}
+
+
 async def license_lookup(request: Request) -> JSONResponse:
     """Customer-facing endpoint to fetch a license key by Stripe session id.
 
     Usage: after checkout, Stripe redirects back with `?session_id=cs_...`.
     The landing page's success view can fetch /license/lookup?session_id=…
     to display the key immediately — no email dependency.
+
+    Called cross-origin from the Pages-hosted success page, so responses
+    carry CORS headers. OPTIONS preflight also supported.
     """
+    if request.method == "OPTIONS":
+        return JSONResponse({}, status_code=204, headers=_CORS_HEADERS)
     session_id = request.query_params.get("session_id", "").strip()
     if not session_id:
-        return JSONResponse({"error": "session_id required"}, status_code=400)
+        return JSONResponse(
+            {"error": "session_id required"}, status_code=400, headers=_CORS_HEADERS
+        )
     lic = LicenseStore().get_by_session(session_id)
     if lic is None:
         # Might just be a race — webhook hasn't fired yet. 404 so the frontend
         # can back off and retry.
-        return JSONResponse({"error": "not_found_yet"}, status_code=404)
+        return JSONResponse({"error": "not_found_yet"}, status_code=404, headers=_CORS_HEADERS)
     return JSONResponse(
         {
             "key": lic.key,
             "tier": lic.tier,
             "status": lic.status,
             "issued_at": lic.issued_at,
-        }
+        },
+        headers=_CORS_HEADERS,
     )
 
 
@@ -309,10 +329,13 @@ async def health(request: Request) -> JSONResponse:
 
 
 # Expose the route list for server.py to register.
+# /license/lookup accepts OPTIONS for CORS preflight (the success page
+# triggers one on first load from a different origin).
 ROUTES = (
     ("/health", "GET", health),
     ("/stripe/webhook", "POST", stripe_webhook),
     ("/license/lookup", "GET", license_lookup),
+    ("/license/lookup", "OPTIONS", license_lookup),
 )
 
 

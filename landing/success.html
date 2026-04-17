@@ -96,9 +96,11 @@
 
 <script>
 // Base URL of the hvac-mcp server. Override via ?api=https://your-host
-// when testing locally. Defaults to the production host.
+// when testing locally. Defaults to hvac-mcp.fly.dev (production), which
+// works today; switch to hvac-mcp.nightfast.tech once the DNS + TLS cert
+// are in place. Both hosts are allowed in HVAC_MCP_ALLOWED_HOSTS.
 const API_BASE = new URLSearchParams(location.search).get('api')
-  || 'https://hvac-mcp.nightfast.tech';
+  || 'https://hvac-mcp.fly.dev';
 
 // Poll /license/lookup — webhook races checkout redirect, so the key may
 // take a few seconds to appear.
