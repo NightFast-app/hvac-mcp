@@ -39,12 +39,25 @@ def _current_license_key() -> str | None:
 
 
 def is_licensed() -> bool:
-    """Return True if a valid license is present in the current context."""
+    """Return True if a valid license is present in the current context.
+
+    Resolution order:
+      1. Dev allow-list (for local testing, never ship keys from this set).
+      2. Key present in the local LicenseStore with status='active'
+         (populated by Stripe webhooks — see webhook.py).
+    """
     key = _current_license_key()
     if not key:
         return False
-    # TODO(phase-3): replace with Stripe metadata lookup + in-memory TTL cache
-    return key in _DEV_ALLOWED_KEYS or key.startswith("live_")
+    if key in _DEV_ALLOWED_KEYS:
+        return True
+    try:
+        from hvac_mcp.storage import LicenseStore  # lazy: storage is optional
+
+        return LicenseStore().is_active(key)
+    except Exception as e:
+        logger.warning("License store unavailable, denying: %s", e)
+        return False
 
 
 def require_license() -> None:

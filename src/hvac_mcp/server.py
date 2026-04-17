@@ -18,6 +18,7 @@ import sys
 
 from mcp.server.fastmcp import FastMCP
 
+from hvac_mcp import webhook
 from hvac_mcp.tools import (
     code_lookup,
     diagnostics,
@@ -53,6 +54,19 @@ def register_all_tools() -> None:
     logger.info("All tool modules registered")
 
 
+def register_http_routes() -> None:
+    """Register HTTP-only routes (health, Stripe webhook, license lookup).
+
+    These only matter for streamable-http transport. FastMCP's stdio mode
+    ignores them, so there's no harm registering them unconditionally.
+    """
+    for path, method, handler in webhook.ROUTES:
+        # FastMCP's @custom_route decorator is equivalent to calling the
+        # decorator form with the method list.
+        mcp.custom_route(path, methods=[method])(handler)
+    logger.info("HTTP routes registered (%d)", len(webhook.ROUTES))
+
+
 def main() -> None:
     """CLI entrypoint."""
     parser = argparse.ArgumentParser(
@@ -84,6 +98,7 @@ def main() -> None:
 
     logging.basicConfig(level=args.log_level, format=LOG_FORMAT, stream=sys.stderr)
     register_all_tools()
+    register_http_routes()
 
     if args.http:
         # Streamable HTTP path: configure via mcp.settings, then run().
